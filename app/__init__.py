@@ -3,11 +3,9 @@ import os
 
 from loguru import logger
 from flask import Flask, jsonify
-from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
-from flask_marshmallow import Marshmallow
 from flask_mongoengine import MongoEngine
 from sqlalchemy.exc import DBAPIError
+from app.extensions import celery, db, migrate, ma
 
 from flask_swagger_ui import get_swaggerui_blueprint
 from werkzeug.exceptions import HTTPException
@@ -20,13 +18,9 @@ from app.definitions.exceptions.app_exceptions import (
     AppExceptionCase,
 )
 
+
 APP_ROOT = os.path.join(os.path.dirname(__file__), "..")  # refers to application_top
 dotenv_path = os.path.join(APP_ROOT, ".env")
-
-db = SQLAlchemy()
-migrate = Migrate()
-ma = Marshmallow()
-
 
 # SWAGGER
 SWAGGER_URL = "/api/docs"
@@ -46,28 +40,20 @@ class InterceptHandler(logging.Handler):
 def create_app(config="config.DevelopmentConfig"):
     """Construct the core application"""
     app = Flask(__name__, instance_relative_config=False)
-    environment = os.getenv("FLASK_ENV")
-    cfg = import_string(config)()
-    if environment == "production":
-        cfg = import_string("config.ProductionConfig")()
+    with app.app_context():
+        environment = os.getenv("FLASK_ENV")
+        cfg = import_string(config)()
+        if environment == "production":
+            cfg = import_string("config.ProductionConfig")()
+        app.config.from_object(cfg)
 
-    app.config.from_object(cfg)
-
-    # add extensions
-    register_extensions(app)
-    logger.add(
-        app.config["LOGFILE"],
-        level=app.config["LOG_LEVEL"],
-        format="{time} {level} {message}",
-        backtrace=app.config["LOG_BACKTRACE"],
-        rotation="25 MB",
-    )
-
-    # register loguru as handler
-    app.logger.addHandler(InterceptHandler())
-    register_blueprints(app)
-    register_swagger_definitions(app)
-    return app
+        # add extensions
+        register_extensions(app)
+        app.logger.addHandler(InterceptHandler())
+        register_blueprints(app)
+        register_swagger_definitions(app)
+        init_celery(app)
+        return app
 
 
 def register_extensions(app):
@@ -84,6 +70,10 @@ def register_extensions(app):
             db.create_all()
     factory.init_app(app, db)
     ma.init_app(app)
+    # app.config.update(
+    #     CELERY_BROKER_URL='redis://localhost:6379',
+    #     CELERY_RESULT_BACKEND='redis://localhost:6379'
+    # )
 
     @app.errorhandler(HTTPException)
     def handle_http_exception(e):
@@ -124,3 +114,18 @@ def register_swagger_definitions(app):
         Swagger API definition.
         """
         return jsonify(spec.to_dict())
+
+
+def init_celery(app=None):
+    app = app or create_app()
+    celery.conf.update(app.config.get("CELERY", {}))
+
+    class ContextTask(celery.Task):
+        """Make celery tasks work with Flask app context"""
+
+        def __call__(self, *args, **kwargs):
+            with app.app_context():
+                return self.run(*args, **kwargs)
+
+    celery.Task = ContextTask
+    return celery

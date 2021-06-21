@@ -1,13 +1,13 @@
 from app.definitions.result import Result
 from app.definitions.service_result import ServiceResult
 from app.models.sms_model import SMSTypeEnum
-from app.repositories import SMSRepository
-from app.services import SMSService
+from app.repositories import SmsRepository
+from app.services import SmsService
 from app.tasks.sms_task import send_sms
 
 
-class SMSController:
-    def __init__(self, sms_repository: SMSRepository, sms_service: SMSService):
+class SmsController:
+    def __init__(self, sms_repository: SmsRepository, sms_service: SmsService):
         self.repository = sms_repository
         self.sms_service = sms_service
 
@@ -26,10 +26,9 @@ class SMSController:
         :param data: {dict} data containing sender, recipient and token of customer
         """
 
-        sender = data["sender"]
-        recipient = data["recipient"]
-        token = data["token"]
-        message = self.token_message(token)
+        recipient = data.get("recipient")
+        token = data["message"]
+        message = self.token_message(token.get("otp"))
         data = {
             "recipient": recipient,
             "message": self.token_message("******"),
@@ -37,12 +36,13 @@ class SMSController:
         }
         sms = self.repository.create(data)
         sms_data = {
-            "sender": sender,
+            "sender": "Quantum",
             "recipient": recipient,
             "message": message,
             "message_id": sms.id
         }
-        send_sms(sms_data, self.sms_service, self.repository)
+        send_sms.delay(sms_data, self.sms_service.__class__.__name__,
+                       self.repository.__class__.__name__)
 
     def token_message(self, token):
         return f"Your verification code is {token}"

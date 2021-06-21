@@ -2,5 +2,5 @@ from app.definitions.repository import SQLBaseRepository
 from app.models import SMS
 
 
-class SMSRepository(SQLBaseRepository):
+class SmsRepository(SQLBaseRepository):
     model = SMS

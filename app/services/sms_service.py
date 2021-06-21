@@ -9,7 +9,7 @@ from app.definitions.service_interfaces import \
     SMSServiceInterface
 
 
-class SMSService(SMSServiceInterface):
+class SmsService(SMSServiceInterface):
     client = "hubtel"
     url = "https://smsc.hubtel.com/v1/messages/send"
     client_id = current_app.config["SMS_CLIENT_ID"]
@@ -26,6 +26,7 @@ class SMSService(SMSServiceInterface):
                           + f"&ClientSecret={self.client_secret}" \
                           + f"&RegisteredDelivery=true"
             result = request("GET", request_url)
-            return result.json()
+            data = result.json()
+            return {"reference": data.get("messageId")}
         except RequestException:
             raise AppException.OperationError(context="Error sending sms")

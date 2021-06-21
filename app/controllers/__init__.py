@@ -1,1 +1,1 @@
-from .sms_controller import SMSController
+from .sms_controller import SmsController

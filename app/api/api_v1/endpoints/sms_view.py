@@ -60,4 +60,3 @@ def get_sms(sms_id):
 
     result = sms_controller.show(sms_id)
     return handle_result(result, schema=SMSSchema)
-

@@ -17,4 +17,3 @@ class Email(db.Model):
     created = db.Column(
         db.DateTime(timezone=True), nullable=False, server_default=func.now()
     )
-

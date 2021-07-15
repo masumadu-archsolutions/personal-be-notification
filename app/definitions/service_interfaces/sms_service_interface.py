@@ -2,7 +2,6 @@ import abc
 
 
 class SMSServiceInterface(metaclass=abc.ABCMeta):
-
     @classmethod
     def __subclasshook__(cls, subclass):
         return (

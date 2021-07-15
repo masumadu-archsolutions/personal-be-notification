@@ -39,10 +39,39 @@ class SmsController:
             "sender": "Quantum",
             "recipient": recipient,
             "message": message,
-            "message_id": sms.id
+            "message_id": sms.id,
         }
-        send_sms.delay(sms_data, self.sms_service.__class__.__name__,
-                       self.repository.__class__.__name__)
+        send_sms.delay(
+            sms_data,
+            self.sms_service.__class__.__name__,
+            self.repository.__class__.__name__,
+        )
 
     def token_message(self, token):
         return f"Your verification code is {token}"
+
+    def send_notification(self, data):
+        recipient = data.get("recipient")
+        message_data = data.get("message")
+        message = message_data.get("message")
+
+        data = {
+            "recipient": recipient,
+            "message": message,
+            "message_type": SMSTypeEnum.notification,
+        }
+
+        sms = self.repository.create(data)
+
+        sms_data = {
+            "sender": "Quantum",
+            "recipient": recipient,
+            "message": message,
+            "message_id": sms.id,
+        }
+
+        send_sms.delay(
+            sms_data,
+            self.sms_service.__class__.__name__,
+            self.repository.__class__.__name__,
+        )

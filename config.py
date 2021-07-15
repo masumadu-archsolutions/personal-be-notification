@@ -35,11 +35,11 @@ class Config:
 
     @property
     def CELERY_BROKER_URL(self):
-        return f'redis://:{self.REDIS_PASSWORD}@{self.REDIS_SERVER}:6379',
+        return (f"redis://:{self.REDIS_PASSWORD}@{self.REDIS_SERVER}:6379",)
 
     @property
     def CELERY_RESULT_BACKEND(self):
-        return f'redis://:{self.REDIS_PASSWORD}@{self.REDIS_SERVER}:6379'
+        return f"redis://:{self.REDIS_PASSWORD}@{self.REDIS_SERVER}:6379"
 
     # GENERAL
     DEBUG = False
@@ -64,19 +64,19 @@ class Config:
 
     SQLALCHEMY_TRACK_MODIFICATIONS = True
     CELERY = {
-        "broker_url": 'redis://localhost:6379',
-        "result_backend": 'redis://localhost:6379',
+        "broker_url": "redis://localhost:6379",
+        "result_backend": "redis://localhost:6379",
     }
 
 
 class DevelopmentConfig(Config):
     @property
     def CELERY_BROKER_URL(self):
-        return f'redis://{self.REDIS_SERVER}:6379',
+        return (f"redis://{self.REDIS_SERVER}:6379",)
 
     @property
     def CELERY_RESULT_BACKEND(self):
-        return f'redis://{self.REDIS_SERVER}:6379'
+        return f"redis://{self.REDIS_SERVER}:6379"
 
     DEBUG = True
     DEVELOPMENT = True

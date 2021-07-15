@@ -1,12 +1,9 @@
-import time
-
 from flask import current_app
 from requests import request
 from requests.exceptions import RequestException
 
 from app.definitions.exceptions import AppException
-from app.definitions.service_interfaces import \
-    SMSServiceInterface
+from app.definitions.service_interfaces import SMSServiceInterface
 
 
 class SmsService(SMSServiceInterface):
@@ -21,10 +18,13 @@ class SmsService(SMSServiceInterface):
         assert message, "Message cannot be None"
 
         try:
-            request_url = self.url + f"?From={sender}&To={receiver}" \
-                          + f"&Content={message}&ClientID={self.client_id}" \
-                          + f"&ClientSecret={self.client_secret}" \
-                          + f"&RegisteredDelivery=true"
+            request_url = (
+                self.url
+                + f"?From={sender}&To={receiver}"
+                + f"&Content={message}&ClientID={self.client_id}"
+                + f"&ClientSecret={self.client_secret}"
+                + "&RegisteredDelivery=true"
+            )
             result = request("GET", request_url)
             data = result.json()
             return {"reference": data.get("messageId")}

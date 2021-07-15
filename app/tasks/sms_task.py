@@ -2,7 +2,7 @@ from app.definitions.exceptions import AppException
 from app.extensions import celery
 from app.repositories import SmsRepository
 from app.services import SmsService
-from celery.contrib import rdb
+
 
 sms_service_instance = SmsService()
 sms_repository_instance = SmsRepository()
@@ -11,7 +11,7 @@ sms_repository_instance = SmsRepository()
 def service_map(service):
     sms_map = {
         sms_service_instance.__class__.__name__: sms_service_instance,
-        sms_repository_instance.__class__.__name__: sms_repository_instance
+        sms_repository_instance.__class__.__name__: sms_repository_instance,
     }
 
     return sms_map.get(service)
@@ -35,15 +35,13 @@ def send_sms(data, service_name, repository_name):
     message_id = data.get("message_id")
     try:
         result = sms_service.send(sender, receiver, message)
-        sms_repository.update_by_id(message_id, {
-            "reference": result.get("reference"),
-            "delivered_to_sms_client": True,
-            "sms_client": sms_service.client
-        })
+        sms_repository.update_by_id(
+            message_id,
+            {
+                "reference": result.get("reference"),
+                "delivered_to_sms_client": True,
+                "sms_client": sms_service.client,
+            },
+        )
     except AppException.OperationError:
-        sms_repository.update_by_id(message_id, {
-            "sms_client": sms_service.client
-        })
-
-
-
+        sms_repository.update_by_id(message_id, {"sms_client": sms_service.client})

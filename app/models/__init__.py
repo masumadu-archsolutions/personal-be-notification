@@ -1,3 +1,2 @@
 from .sms_model import SMS
-
-# from .email_model import Email
+from .notification_template_model import NotificationTemplate

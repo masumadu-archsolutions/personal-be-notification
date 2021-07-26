@@ -1,4 +1,5 @@
 from app.api.api_v1.endpoints.sms_view import sms
+from app.api.api_v1.endpoints.template_view import template
 
 
 def init_app(app):
@@ -8,4 +9,5 @@ def init_app(app):
     :param app:
     :return:
     """
-    app.register_blueprint(sms, url_prefix="/api/sms")
+    app.register_blueprint(sms, url_prefix="/api/v1/sms")
+    app.register_blueprint(template, url_prefix="/api/v1/templates")

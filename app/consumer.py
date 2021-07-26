@@ -30,21 +30,21 @@ if __name__ == "__main__":
 
     # Application context should be registered before importing from app
     from app.controllers import SmsController
-    from app.repositories import SmsRepository
+    from app.repositories import SmsRepository, NotificationTemplateRepository
     from app.services import SmsService
 
     for msg in consumer:
 
         if msg.topic == "SMS_NOTIFICATION":
             obj_graph = pinject.new_object_graph(
-                modules=None, classes=[SmsController, SmsRepository, SmsService]
+                modules=None,
+                classes=[
+                    SmsController,
+                    SmsRepository,
+                    SmsService,
+                    NotificationTemplateRepository,
+                ],
             )
             sms_controller = obj_graph.provide(SmsController)
             data = json.loads(msg.value)
-
-            sms_type = data.get("sms_type")
-
-            if sms_type == "sms_otp":
-                sms_controller.send_token(data)
-            elif sms_type == "sms_notification":
-                sms_controller.send_notification(data)
+            sms_controller.send_message(data)

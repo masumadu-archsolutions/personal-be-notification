@@ -60,20 +60,16 @@ def register_extensions(app):
     """Register Flask extensions."""
     from app.definitions.factory import factory
 
-    if app.config["DB_ENGINE"] == "mongodb":
+    if app.config["DB_ENGINE"] == "MONGODB":
         me = MongoEngine()
         me.init_app(app)
-    elif app.config["DB_ENGINE"] == "postgres":
+    elif app.config["DB_ENGINE"] == "POSTGRES":
         db.init_app(app)
         migrate.init_app(app, db)
         with app.app_context():
             db.create_all()
     factory.init_app(app, db)
     ma.init_app(app)
-    # app.config.update(
-    #     CELERY_BROKER_URL='redis://localhost:6379',
-    #     CELERY_RESULT_BACKEND='redis://localhost:6379'
-    # )
 
     @app.errorhandler(HTTPException)
     def handle_http_exception(e):

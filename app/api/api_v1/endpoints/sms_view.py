@@ -3,14 +3,15 @@ from flask import Blueprint
 
 from app.controllers import SmsController
 from app.definitions.service_result import handle_result
-from app.repositories import SmsRepository
+from app.repositories import SmsRepository, NotificationTemplateRepository
 from app.schema import SMSSchema
 from app.services import SmsService
 
 sms = Blueprint("sms", __name__)
 
 obj_graph = pinject.new_object_graph(
-    modules=None, classes=[SmsController, SmsRepository, SmsService]
+    modules=None,
+    classes=[SmsController, NotificationTemplateRepository, SmsRepository, SmsService],
 )
 
 sms_controller = obj_graph.provide(SmsController)

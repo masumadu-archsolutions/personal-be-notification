@@ -15,7 +15,17 @@ class CRUDRepositoryInterface(metaclass=abc.ABCMeta):
             and callable(subclass.find_by_id)
             and hasattr(subclass, "delete")
             and callable(subclass.delete)
+            and hasattr(subclass, "model")
         )
+
+    @property
+    def model(self):
+        """
+        the model that is bound to this repository. This model will be used for
+        further queries and actions that will be done by the repository that
+        inherits from this abstract class/interface mock
+        """
+        raise NotImplementedError
 
     @abc.abstractmethod
     def index(self):
@@ -35,11 +45,11 @@ class CRUDRepositoryInterface(metaclass=abc.ABCMeta):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def update_by_id(self, id, obj_in):
+    def update_by_id(self, obj_id, obj_in):
         """
         when inherited, updates a record by taking in the id, and the data you
         want to update with
-        :param id:
+        :param obj_id:
         :param obj_in:
         :return: a model object
         """
@@ -57,10 +67,26 @@ class CRUDRepositoryInterface(metaclass=abc.ABCMeta):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def delete(self, id):
+    def find(self, filter_param):
+        """
+        when inherited, should find a record by the parameters passed
+        :param filter_param:
+        :return: a model object
+        """
+
+    @abc.abstractmethod
+    def find_all(self, filter_param):
+        """
+        when inherited, should find all records by the parameters passed
+        :param filter_param:
+        :return: a model object
+        """
+
+    @abc.abstractmethod
+    def delete(self, obj_id):
         """
         takes in an id, finds and deletes the record
-        :param id:
+        :param obj_id:
         :return: model object
         """
 

@@ -1,15 +1,23 @@
+import re
+import json
+from jinja2 import Template
 from app.definitions.result import Result
 from app.definitions.service_result import ServiceResult
-from app.models.sms_model import SMSTypeEnum
-from app.repositories import SmsRepository
+from app.repositories import SmsRepository, NotificationTemplateRepository
 from app.services import SmsService
 from app.tasks.sms_task import send_sms
 
 
 class SmsController:
-    def __init__(self, sms_repository: SmsRepository, sms_service: SmsService):
+    def __init__(
+        self,
+        sms_repository: SmsRepository,
+        notification_template_repository: NotificationTemplateRepository,  # noqa
+        sms_service: SmsService,
+    ):
         self.repository = sms_repository
         self.sms_service = sms_service
+        self.template_repository = notification_template_repository
 
     def index(self):
         result = self.repository.index()
@@ -19,27 +27,25 @@ class SmsController:
         sms = self.repository.find_by_id(sms_id)
         return ServiceResult(Result(sms, 200))
 
-    def send_token(self, data):
-        """
-        controller method to send sms token to customer in order to confirm
-        customer's phone number
-        :param data: {dict} data containing sender, recipient and token of customer
-        """
-
+    def send_message(self, data):
         recipient = data.get("recipient")
-        token = data["message"]
-        message = self.token_message(token.get("otp"))
-        data = {
+        details = data.get("details")
+        meta = data.get("meta")
+        generated_message = self.generate_messages(details=details, meta=meta)
+        sanitized_message = generated_message.get("sanitized_message")
+        message = generated_message.get("message")
+
+        sms_record_data = {
             "recipient": recipient,
-            "message": self.token_message("******"),
-            "message_type": SMSTypeEnum.otp,
+            "message": sanitized_message,
+            "message_type": meta.get("type"),
         }
-        sms = self.repository.create(data)
+        sms_record = self.repository.create(sms_record_data)
         sms_data = {
             "sender": "Quantum",
             "recipient": recipient,
             "message": message,
-            "message_id": sms.id,
+            "message_id": sms_record.id,
         }
         send_sms.delay(
             sms_data,
@@ -47,31 +53,24 @@ class SmsController:
             self.repository.__class__.__name__,
         )
 
-    def token_message(self, token):
-        return f"Your verification code is {token}"
+    def generate_messages(self, details, meta):
+        message_template = self.template_repository.find(meta)
 
-    def send_notification(self, data):
-        recipient = data.get("recipient")
-        message_data = data.get("message")
-        message = message_data.get("message")
+        if not message_template:
+            return "Empty message"
+        template_string = message_template.template
+        template = Template(template_string)
+        message = template.render(**details)
 
-        data = {
-            "recipient": recipient,
-            "message": message,
-            "message_type": SMSTypeEnum.notification,
-        }
+        # get keywords from message_template
+        keywords = json.loads(message_template.keywords)
+        for keyword in keywords:
+            is_sensitive = keyword.get("is_sensitive")
+            if is_sensitive:
+                # TODO: change 'keyword' below to 'placeholder' in the database
+                item = keyword.get("keyword")
+                details[item] = re.sub(".", "*", str(details.get(item)))
 
-        sms = self.repository.create(data)
+        redacted_message = template.render(**details)
 
-        sms_data = {
-            "sender": "Quantum",
-            "recipient": recipient,
-            "message": message,
-            "message_id": sms.id,
-        }
-
-        send_sms.delay(
-            sms_data,
-            self.sms_service.__class__.__name__,
-            self.repository.__class__.__name__,
-        )
+        return {"message": message, "sanitized_message": redacted_message}

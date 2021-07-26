@@ -15,10 +15,10 @@ class AuthServiceInterface(metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def get_token(self, request_data):
-        """
+        f"""
 
         :param request_data: authentication data needed to retrieve valid token
-        :return:
+        :return: {dict}: a dictionary with access_token and refresh_token
         """
         raise NotImplementedError
 
@@ -27,7 +27,7 @@ class AuthServiceInterface(metaclass=abc.ABCMeta):
         """
 
         :param refresh_token: refresh token needed to get the next valid token
-        :return:
+        :return: {dict}: a dictionary with access_token and refresh_token
         """
         raise NotImplementedError
 

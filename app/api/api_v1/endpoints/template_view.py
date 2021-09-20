@@ -18,8 +18,8 @@ template_controller = obj_graph.provide(TemplateController)
 
 @template.route("/", methods=["POST"])
 @validator(schema=TemplateCreateSchema)
-@auth_required("admin")
-def create():
+# @auth_required()
+def create_template():
     """
     ---
     post:
@@ -46,8 +46,8 @@ def create():
 
 
 @template.route("/", methods=["GET"])
-@auth_required("admin")
-def index():
+# @auth_required()
+def get_all_templates():
     """
     ---
     get:
@@ -70,7 +70,7 @@ def index():
 
 
 @template.route("/<string:template_id>")
-@auth_required("admin")
+@auth_required()
 def get_template(template_id):
     """
     ---
@@ -98,8 +98,8 @@ def get_template(template_id):
 
 @template.route("/<string:template_id>", methods=["PATCH"])
 @validator(schema=TemplateUpdateSchema)
-@auth_required("admin")
-def update(template_id):
+@auth_required()
+def update_template(template_id):
     """
     ---
     patch:
@@ -133,8 +133,8 @@ def update(template_id):
 
 
 @template.route("/<string:template_id>", methods=["DELETE"])
-@auth_required("admin")
-def delete(template_id):
+@auth_required()
+def delete_template(template_id):
     """
     ---
     delete:
@@ -150,13 +150,9 @@ def delete(template_id):
         - bearerAuth: []
       responses:
         '200':
-          description: returns a template
-          content:
-            application/json:
-              schema: TemplateSchema
+          description: returns nothing
       tags:
           - Template
     """
-    data = request.json
-    result = template_controller.update(template_id, data)
+    result = template_controller.delete(template_id)
     return handle_result(result)

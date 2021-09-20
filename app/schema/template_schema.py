@@ -28,7 +28,16 @@ class TemplateSchema(Schema):
     modified = fields.DateTime(required=True)
 
     class Meta:
-        fields = ["id", "type", "subtype", "template", "keywords", "created", "modified"]
+        fields = [
+            "id",
+            "type",
+            "subtype",
+            "template",
+            "keywords",
+            "message",
+            "created",
+            "modified",
+        ]
 
 
 class TemplateCreateSchema(Schema):

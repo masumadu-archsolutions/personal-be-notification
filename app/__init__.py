@@ -5,7 +5,7 @@ from loguru import logger
 from flask import Flask, jsonify
 from flask_mongoengine import MongoEngine
 from sqlalchemy.exc import DBAPIError
-from app.extensions import celery, db, migrate, ma
+from app.definitions.extensions import celery, db, migrate, ma
 
 from flask_swagger_ui import get_swaggerui_blueprint
 from werkzeug.exceptions import HTTPException
@@ -59,6 +59,7 @@ def create_app(config="config.DevelopmentConfig"):
 def register_extensions(app):
     """Register Flask extensions."""
     from app.definitions.factory import factory
+    from app.definitions.role_mapper import mapper
 
     if app.config["DB_ENGINE"] == "MONGODB":
         me = MongoEngine()
@@ -69,6 +70,7 @@ def register_extensions(app):
         with app.app_context():
             db.create_all()
     factory.init_app(app, db)
+    mapper.init_app(app)
     ma.init_app(app)
 
     @app.errorhandler(HTTPException)
@@ -100,7 +102,6 @@ def register_swagger_definitions(app):
         for fn_name in app.view_functions:
             if fn_name == "static":
                 continue
-            print(f"Loading swagger docs for function: {fn_name}")
             view_fn = app.view_functions[fn_name]
             spec.path(view=view_fn)
 

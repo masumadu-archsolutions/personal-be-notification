@@ -4,6 +4,7 @@ import json
 
 from sqlalchemy.sql import func
 from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy import Index
 from dataclasses import dataclass
 from app import db
 
@@ -33,7 +34,9 @@ class NotificationTemplate(db.Model):
         onupdate=func.now(),
     )
 
-    def __init__(self, type, subtype, message, keywords):  # noqa
+    __table_args__ = (Index("type_subtype_index", "type", "subtype", unique=True),)
+
+    def __init__(self, type, subtype, message, keywords=None):  # noqa
         self.type = type
         self.subtype = subtype
         self.message = message
@@ -41,4 +44,4 @@ class NotificationTemplate(db.Model):
 
     @hybrid_property
     def keywords(self):
-        return json.loads(self.template_keywords)
+        return json.loads(self.template_keywords) if self.template_keywords else None

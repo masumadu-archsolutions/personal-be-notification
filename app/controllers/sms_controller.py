@@ -1,8 +1,6 @@
 import re
-import json
 from jinja2 import Template
 from app.definitions.result import Result
-from app.definitions.service_result import ServiceResult
 from app.repositories import SmsRepository, NotificationTemplateRepository
 from app.services import SmsService
 from app.tasks.sms_task import send_sms
@@ -21,11 +19,11 @@ class SmsController:
 
     def index(self):
         result = self.repository.index()
-        return ServiceResult(Result(result, 200))
+        return Result(result, 200)
 
     def show(self, sms_id):
         sms = self.repository.find_by_id(sms_id)
-        return ServiceResult(Result(sms, 200))
+        return Result(sms, 200)
 
     def send_message(self, data):
         recipient = data.get("recipient")
@@ -58,17 +56,16 @@ class SmsController:
 
         if not message_template:
             return "Empty message"
-        template_string = message_template.template
+        template_string = message_template.message
         template = Template(template_string)
         message = template.render(**details)
 
         # get keywords from message_template
-        keywords = json.loads(message_template.keywords)
+        keywords = message_template.keywords
         for keyword in keywords:
             is_sensitive = keyword.get("is_sensitive")
             if is_sensitive:
-                # TODO: change 'keyword' below to 'placeholder' in the database
-                item = keyword.get("keyword")
+                item = keyword.get("placeholder")
                 details[item] = re.sub(".", "*", str(details.get(item)))
 
         redacted_message = template.render(**details)

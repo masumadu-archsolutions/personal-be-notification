@@ -1,16 +1,16 @@
-from flask import current_app
+from config import Config
 from requests import request
 from requests.exceptions import RequestException
 
-from app.definitions.exceptions import AppException
-from app.definitions.service_interfaces import SMSServiceInterface
+from app.core.exceptions import AppException
+from app.core.service_interfaces import SMSServiceInterface
 
 
 class SmsService(SMSServiceInterface):
     client = "hubtel"
     url = "https://smsc.hubtel.com/v1/messages/send"
-    client_id = current_app.config["SMS_CLIENT_ID"]
-    client_secret = current_app.config["SMS_CLIENT_SECRET"]
+    client_id = Config.SMS_CLIENT_ID
+    client_secret = Config.SMS_CLIENT_SECRET
 
     def send(self, sender, receiver, message):
         assert sender, "Sender cannot be None"

@@ -6,7 +6,7 @@ import itertools as it
 from flask import Flask
 from config import Config
 
-from app.definitions.exceptions import AppException
+from app.core.exceptions import AppException
 from app.services.keycloak_service import AuthService
 
 auth_service = AuthService()

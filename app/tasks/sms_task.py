@@ -1,5 +1,5 @@
-from app.definitions.exceptions import AppException
-from app.definitions.extensions import celery
+from app.core.exceptions import AppException
+from app.core.extensions import celery
 from app.repositories import SmsRepository
 from app.services import SmsService
 

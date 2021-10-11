@@ -1,11 +1,11 @@
-import logging
 import os
+import logging
 
-from loguru import logger
-from flask import Flask, jsonify
+from flask import Flask, jsonify, has_request_context, request
+from flask.logging import default_handler
 from flask_mongoengine import MongoEngine
 from sqlalchemy.exc import DBAPIError
-from app.definitions.extensions import celery, db, migrate, ma
+from app.core.extensions import db, migrate, ma
 
 from flask_swagger_ui import get_swaggerui_blueprint
 from werkzeug.exceptions import HTTPException
@@ -13,11 +13,10 @@ from werkzeug.utils import import_string
 
 # load dotenv in the base root
 from app.api_spec import spec
-from app.definitions.exceptions.app_exceptions import (
+from app.core.exceptions.app_exceptions import (
     app_exception_handler,
     AppExceptionCase,
 )
-
 
 APP_ROOT = os.path.join(os.path.dirname(__file__), "..")  # refers to application_top
 dotenv_path = os.path.join(APP_ROOT, ".env")
@@ -31,15 +30,34 @@ SWAGGERUI_BLUEPRINT = get_swaggerui_blueprint(
 )
 
 
-class InterceptHandler(logging.Handler):
-    def emit(self, record):
-        logger_opt = logger.opt(depth=6, exception=record.exc_info)
-        logger_opt.log(record.levelno, record.getMessage())
+class RequestFormatter(logging.Formatter):
+    def format(self, record):
+        if has_request_context():
+            record.url = request.url
+            record.remote_addr = request.remote_addr
+        else:
+            record.url = None
+            record.remote_addr = None
+
+        return super().format(record)
+
+
+formatter = RequestFormatter(
+    "[%(asctime)s] %(remote_addr)s requested %(url)s\n"
+    "%(levelname)s in %(module)s: %(message)s"
+)
+default_handler.setFormatter(formatter)
+default_handler.setLevel(logging.ERROR)
+default_handler.setLevel(logging.INFO)
 
 
 def create_app(config="config.DevelopmentConfig"):
     """Construct the core application"""
-    app = Flask(__name__, instance_relative_config=False)
+    basedir = os.path.abspath(os.path.dirname(__file__))
+    path = os.path.join(basedir, "../instance")
+    app = Flask(__name__, instance_relative_config=False, instance_path=path)
+
+    app.logger.addHandler(default_handler)
     with app.app_context():
         environment = os.getenv("FLASK_ENV")
         cfg = import_string(config)()
@@ -49,39 +67,35 @@ def create_app(config="config.DevelopmentConfig"):
 
         # add extensions
         register_extensions(app)
-        app.logger.addHandler(InterceptHandler())
         register_blueprints(app)
         register_swagger_definitions(app)
-        init_celery(app)
         return app
 
 
-def register_extensions(app):
+def register_extensions(flask_app):
     """Register Flask extensions."""
-    from app.definitions.factory import factory
-    from app.definitions.role_mapper import mapper
+    from app.core.factory import factory
 
-    if app.config["DB_ENGINE"] == "MONGODB":
+    if flask_app.config["DB_ENGINE"] == "MONGODB":
         me = MongoEngine()
-        me.init_app(app)
-    elif app.config["DB_ENGINE"] == "POSTGRES":
-        db.init_app(app)
-        migrate.init_app(app, db)
-        with app.app_context():
+        me.init_app(flask_app)
+    elif flask_app.config["DB_ENGINE"] == "POSTGRES":
+        db.init_app(flask_app)
+        migrate.init_app(flask_app, db)
+        with flask_app.app_context():
             db.create_all()
-    factory.init_app(app, db)
-    mapper.init_app(app)
-    ma.init_app(app)
+    factory.init_app(flask_app, db)
+    ma.init_app(flask_app)
 
-    @app.errorhandler(HTTPException)
+    @flask_app.errorhandler(HTTPException)
     def handle_http_exception(e):
         return app_exception_handler(e)
 
-    @app.errorhandler(DBAPIError)
+    @flask_app.errorhandler(DBAPIError)
     def handle_db_exception(e):
         return app_exception_handler(e)
 
-    @app.errorhandler(AppExceptionCase)
+    @flask_app.errorhandler(AppExceptionCase)
     def handle_app_exceptions(e):
         return app_exception_handler(e)
 
@@ -102,6 +116,7 @@ def register_swagger_definitions(app):
         for fn_name in app.view_functions:
             if fn_name == "static":
                 continue
+            print(f"Loading swagger docs for function: {fn_name}")
             view_fn = app.view_functions[fn_name]
             spec.path(view=view_fn)
 
@@ -111,18 +126,3 @@ def register_swagger_definitions(app):
         Swagger API definition.
         """
         return jsonify(spec.to_dict())
-
-
-def init_celery(app=None):
-    app = app or create_app()
-    celery.conf.update(app.config.get("CELERY", {}))
-
-    class ContextTask(celery.Task):
-        """Make celery tasks work with Flask app context"""
-
-        def __call__(self, *args, **kwargs):
-            with app.app_context():
-                return self.run(*args, **kwargs)
-
-    celery.Task = ContextTask
-    return celery

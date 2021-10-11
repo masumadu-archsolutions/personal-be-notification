@@ -1,6 +1,6 @@
 import re
 from jinja2 import Template
-from app.definitions.result import Result
+from app.core.result import Result
 from app.repositories import SmsRepository, NotificationTemplateRepository
 from app.services import SmsService
 from app.tasks.sms_task import send_sms
@@ -26,6 +26,41 @@ class SmsController:
         return Result(sms, 200)
 
     def send_message(self, data):
+        """
+        this method takes a data that consists of the recipient of the message,
+        the details of the message and the message meta and fires an sms
+        notification based on the parameters
+        passed to it.
+
+        e.g of the data structure is:
+        {
+            "recipient": "0241112223",
+            "details": {
+                "name": "John",
+                "verification_code": "123456"
+            },
+            "meta": {
+                "type": "sms_notification",
+                "subtype": "otp"
+            }
+        }
+
+        based on this information, a message that has already been created in
+        the database matching the meta dictionary will be retrieved and its
+        placeholders will be replaced with the data in the details key in the.
+
+        For instance, if a message "Hello {{name}}, your verification code is
+        {{verification_code}}" with type and subtype that matches the meta is
+        found in the database, the message constructed will be
+        "Hello John, your verification code is 123456"
+
+        Also this method uses celery to run asynchronous tasks so as not to block
+        the main thread. if the message takes too long to be delivered.
+
+        When a message is delivered to the external sms provider,
+        a delivered_to_sms_client flag set on the record will be toggled to true
+
+        """
         recipient = data.get("recipient")
         details = data.get("details")
         meta = data.get("meta")

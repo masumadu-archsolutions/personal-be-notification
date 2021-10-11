@@ -1,4 +1,4 @@
-from app.definitions.result import Result
+from app.core.result import Result
 from app.repositories import NotificationTemplateRepository
 
 

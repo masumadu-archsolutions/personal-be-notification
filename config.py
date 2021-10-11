@@ -12,8 +12,8 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 class Config:
     """Set Flask configuration vars from .env file."""
 
+    SERVICE_NAME = os.getenv("SERVICE_NAME")
     FLASK_ENV = os.getenv("FLASK_ENV")
-
     DB_ENGINE = os.getenv("DB_ENGINE", default="POSTGRES")
 
     # SQL database
@@ -40,6 +40,7 @@ class Config:
     FLASK_RUN_PORT = 6000
     TESTING = False
     LOGFILE = "log.log"
+    APP_NAME = "notification"
 
     @property
     def CELERY_BROKER_URL(self):

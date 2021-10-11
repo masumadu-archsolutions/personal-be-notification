@@ -2,7 +2,7 @@ import pinject
 from flask import Blueprint, request
 
 from app.controllers import TemplateController
-from app.definitions.service_result import handle_result
+from app.core.service_result import handle_result
 from app.repositories import NotificationTemplateRepository
 from app.schema import TemplateSchema, TemplateCreateSchema, TemplateUpdateSchema
 from app.utils import validator, auth_required

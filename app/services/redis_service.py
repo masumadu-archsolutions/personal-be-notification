@@ -1,16 +1,18 @@
-import os
 import json
 import redis
 from redis.exceptions import RedisError
-
+from config import Config
 from app.core.exceptions import HTTPException
 from app.core.service_interfaces import CacheServiceInterface
 
 
-REDIS_SERVER = os.getenv("REDIS_SERVER")
-REDIS_PASSWORD = os.getenv("REDIS_PASSWORD", None)
+REDIS_SERVER = Config.REDIS_SERVER
+REDIS_PASSWORD = Config.REDIS_PASSWORD
+REDIS_PORT = Config.REDIS_PORT
 
-redis_conn = redis.Redis(host=REDIS_SERVER, port=6379, db=0, password=REDIS_PASSWORD)
+redis_conn = redis.Redis(
+    host=REDIS_SERVER, port=REDIS_PORT, db=0, password=REDIS_PASSWORD
+)
 
 
 class RedisService(CacheServiceInterface):

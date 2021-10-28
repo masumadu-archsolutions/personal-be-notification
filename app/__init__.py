@@ -5,7 +5,7 @@ from flask import Flask, jsonify, has_request_context, request
 from flask.logging import default_handler
 from flask_mongoengine import MongoEngine
 from sqlalchemy.exc import DBAPIError
-from app.core.extensions import db, migrate, ma
+from app.core.extensions import db, migrate, ma, celery
 
 from flask_swagger_ui import get_swaggerui_blueprint
 from werkzeug.exceptions import HTTPException
@@ -126,3 +126,18 @@ def register_swagger_definitions(app):
         Swagger API definition.
         """
         return jsonify(spec.to_dict())
+
+
+def init_celery(app=None):
+    app = app or create_app()
+    celery.conf.update(app.config.get("CELERY", {}))
+
+    class ContextTask(celery.Task):
+        """Make celery tasks work with Flask app context"""
+
+        def __call__(self, *args, **kwargs):
+            with app.app_context():
+                return self.run(*args, **kwargs)
+
+    celery.Task = ContextTask
+    return celery

@@ -31,8 +31,10 @@ class Config:
     MONGODB_CONNECT = False
 
     # REDIS
-    REDIS_SERVER = os.getenv("REDIS_SERVER")
-    REDIS_PASSWORD = os.getenv("REDIS_PASSWORD")
+    REDIS_SERVER = os.getenv("REDIS_SERVER", default="localhost")
+    REDIS_PASSWORD = os.getenv("REDIS_PASSWORD", None)
+    REDIS_PORT = int(os.getenv("REDIS_PORT", 6379))
+
     # General
     DEBUG = False
     DEVELOPMENT = False
@@ -41,14 +43,6 @@ class Config:
     TESTING = False
     LOGFILE = "log.log"
     APP_NAME = "notification"
-
-    @property
-    def CELERY_BROKER_URL(self):
-        return f"redis://:{self.REDIS_PASSWORD}@{self.REDIS_SERVER}"
-
-    @property
-    def CELERY_RESULT_BACKEND(self):
-        return f"redis://:{self.REDIS_PASSWORD}@{self.REDIS_SERVER}"
 
     # SMS
     SMS_CLIENT_ID = os.getenv("SMS_CLIENT_ID")
@@ -66,16 +60,18 @@ class Config:
 
     SQLALCHEMY_TRACK_MODIFICATIONS = True
 
-    CELERY = {
-        "broker_url": "redis://localhost:6379",
-        "result_backend": "redis://localhost:6379",
-    }
+    @property
+    def CELERY(self):
+        return {
+            "broker_url": f"redis://{self.REDIS_SERVER}:{self.REDIS_PORT}",
+            "result_backend": f"redis://{self.REDIS_SERVER}:{self.REDIS_PORT}",
+        }
 
 
 class DevelopmentConfig(Config):
     @property
     def CELERY_BROKER_URL(self):
-        return (f"redis://{self.REDIS_SERVER}:6379",)
+        return f"redis://{self.REDIS_SERVER}:6379"
 
     @property
     def CELERY_RESULT_BACKEND(self):

@@ -25,10 +25,6 @@ class BaseTestCase(TestCase):
 
     def create_app(self):
         app = create_app("config.TestingConfig")
-        app.config.from_mapping(
-            SQLALCHEMY_DATABASE_URI="sqlite:///"
-            + os.path.join(app.instance_path, "test.db?check_same_thread=False"),
-        )
         self.template_repository = NotificationTemplateRepository()
         self.sms_repository = SmsRepository()
         self.sms_controller = SmsController(
@@ -53,7 +49,11 @@ class BaseTestCase(TestCase):
         """
         Will be called after every test
         """
+        db.session.remove()
         db.drop_all()
+
+        file = f"{Config.SQL_DB_NAME}.sqlite3"
+        os.remove(file)
 
     def required_roles_side_effect(  # noqa
         self, token, key, algorithms, audience, issuer

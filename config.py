@@ -93,10 +93,15 @@ class ProductionConfig(Config):
 
 
 class TestingConfig(Config):
-    DB_NAME = "test"
     TESTING = True
     DEBUG = True
     DEVELOPMENT = True
     LOG_BACKTRACE = True
     LOG_LEVEL = "DEBUG"
-    SQLALCHEMY_DATABASE_URI = "sqlite:///" + os.path.join(basedir, DB_NAME) + ".sqlite3"
+
+    @property
+    def SQLALCHEMY_DATABASE_URI(self):
+        return (
+            f"sqlite:///{os.path.join('..', self.SQL_DB_NAME)}"
+            f".sqlite3?check_same_thread=False"
+        )

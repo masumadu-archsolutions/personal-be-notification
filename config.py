@@ -12,7 +12,7 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 class Config:
     """Set Flask configuration vars from .env file."""
 
-    SERVICE_NAME = os.getenv("SERVICE_NAME")
+    SERVICE_NAME = "Notification Service"
     FLASK_ENV = os.getenv("FLASK_ENV")
     DB_ENGINE = os.getenv("DB_ENGINE", default="POSTGRES")
 
@@ -38,7 +38,7 @@ class Config:
     # General
     DEBUG = False
     DEVELOPMENT = False
-    SECRET_KEY = "SECRET"
+    SECRET_KEY = os.getenv("SECRET_KEY", default="SECRETKEY")
     FLASK_RUN_PORT = 6000
     TESTING = False
     LOGFILE = "log.log"
@@ -69,17 +69,10 @@ class Config:
 
 
 class DevelopmentConfig(Config):
-    @property
-    def CELERY_BROKER_URL(self):
-        return f"redis://{self.REDIS_SERVER}:6379"
-
-    @property
-    def CELERY_RESULT_BACKEND(self):
-        return f"redis://{self.REDIS_SERVER}:6379"
 
     DEBUG = True
     DEVELOPMENT = True
-    DB_SERVER = os.getenv("DEV_DB_SERVER")
+    SQL_DB_HOST = os.getenv("DEV_DB_HOST")
     LOG_BACKTRACE = True
     LOG_LEVEL = "DEBUG"
 
@@ -87,7 +80,7 @@ class DevelopmentConfig(Config):
 class ProductionConfig(Config):
     DEBUG = False
     DEVELOPMENT = False
-    DB_SERVER = os.getenv("DB_SERVER")
+    SQL_DB_HOST = os.getenv("DB_HOST")
     LOG_BACKTRACE = False
     LOG_LEVEL = "INFO"
 

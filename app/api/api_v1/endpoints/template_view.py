@@ -5,7 +5,7 @@ from app.controllers import TemplateController
 from app.core.service_result import handle_result
 from app.repositories import NotificationTemplateRepository
 from app.schema import TemplateSchema, TemplateCreateSchema, TemplateUpdateSchema
-from app.utils import validator, auth_required
+from app.utils import validator
 
 template = Blueprint("template", __name__)
 
@@ -40,8 +40,11 @@ def create_template():
       tags:
           - Template
     """
+    # expected request.json data fields: TemplateCreateSchema
     data = request.json
+    # expected handling function: template_controller.create
     result = template_controller.create(data)
+    # expected response data fields after serialization: TemplateSchema
     return handle_result(result, schema=TemplateSchema)
 
 
@@ -65,12 +68,14 @@ def get_all_templates():
       tags:
           - Template
     """
+    # expected handling function: template_controller.index
     result = template_controller.index()
+    # expected response data fields after serialization: TemplateSchema
     return handle_result(result, schema=TemplateSchema, many=True)
 
 
 @template.route("/<string:template_id>")
-@auth_required()
+# @auth_required()
 def get_template(template_id):
     """
     ---
@@ -92,13 +97,15 @@ def get_template(template_id):
       tags:
           - Template
     """
+    # expected handling function: template_controller.show
     result = template_controller.show(template_id)
+    # expected response data fields after serialization: TemplateSchema
     return handle_result(result, schema=TemplateSchema)
 
 
 @template.route("/<string:template_id>", methods=["PATCH"])
 @validator(schema=TemplateUpdateSchema)
-@auth_required()
+# @auth_required()
 def update_template(template_id):
     """
     ---
@@ -127,13 +134,16 @@ def update_template(template_id):
       tags:
           - Template
     """
+    # expected request.json data fields: TemplateUpdateSchema
     data = request.json
+    # expected handling function: template_controller.update
     result = template_controller.update(template_id, data)
+    # expected response data fields after serialization: TemplateSchema
     return handle_result(result, schema=TemplateSchema)
 
 
 @template.route("/<string:template_id>", methods=["DELETE"])
-@auth_required()
+# @auth_required()
 def delete_template(template_id):
     """
     ---

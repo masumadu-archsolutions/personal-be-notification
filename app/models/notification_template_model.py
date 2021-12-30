@@ -14,6 +14,7 @@ class NotificationTemplate(db.Model):
     id: str
     type: str
     subtype: str
+    message: str
     template_keywords: str
     created: datetime.datetime
     modified: datetime.datetime
@@ -36,6 +37,16 @@ class NotificationTemplate(db.Model):
 
     __table_args__ = (Index("type_subtype_index", "type", "subtype", unique=True),)
 
+    # @property
+    # def keywords(self):
+    #     return self.template_keywords
+
+    # @keywords.setter
+    # def keywords(self, keywords):
+    #     k = keywords
+    #     print(keywords)
+    #     self.template_keywords = json.dumps(keywords)
+
     def __init__(self, type, subtype, message, keywords=None):  # noqa
         self.type = type
         self.subtype = subtype
@@ -45,3 +56,7 @@ class NotificationTemplate(db.Model):
     @hybrid_property
     def keywords(self):
         return json.loads(self.template_keywords) if self.template_keywords else None
+
+    @keywords.setter
+    def keywords(self, keywords):
+        self.template_keywords = json.dumps(keywords)

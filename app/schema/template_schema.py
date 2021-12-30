@@ -38,6 +38,7 @@ class TemplateSchema(Schema):
             "created",
             "modified",
         ]
+        ordered = True
 
 
 class TemplateCreateSchema(Schema):

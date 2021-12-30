@@ -10,3 +10,6 @@ class SMSSchema(Schema):
     sms_client = fields.Str()
     delivered_to_sms_client = fields.Boolean()
     created = fields.DateTime()
+
+    class Meta:
+        ordered = True

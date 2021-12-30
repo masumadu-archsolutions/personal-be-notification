@@ -1,5 +1,9 @@
 import os
 import logging
+import sys
+
+# add app to system path
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from flask import Flask, jsonify, has_request_context, request
 from flask.logging import default_handler
@@ -22,11 +26,11 @@ APP_ROOT = os.path.join(os.path.dirname(__file__), "..")  # refers to applicatio
 dotenv_path = os.path.join(APP_ROOT, ".env")
 
 # SWAGGER
-SWAGGER_URL = "/api/docs"
+SWAGGER_URL = "/notification/api/docs"
 API_URL = "/static/swagger.json"
 
 SWAGGERUI_BLUEPRINT = get_swaggerui_blueprint(
-    SWAGGER_URL, API_URL, config={"app_name": "Python-Flask-REST-Boilerplate"}
+    SWAGGER_URL, API_URL, config={"app_name": "nova-be-notification"}
 )
 
 
@@ -56,7 +60,6 @@ def create_app(config="config.DevelopmentConfig"):
     basedir = os.path.abspath(os.path.dirname(__file__))
     path = os.path.join(basedir, "../instance")
     app = Flask(__name__, instance_relative_config=False, instance_path=path)
-
     app.logger.addHandler(default_handler)
     with app.app_context():
         environment = os.getenv("FLASK_ENV")
@@ -64,11 +67,11 @@ def create_app(config="config.DevelopmentConfig"):
         if environment == "production":
             cfg = import_string("config.ProductionConfig")()
         app.config.from_object(cfg)
-
         # add extensions
         register_extensions(app)
         register_blueprints(app)
         register_swagger_definitions(app)
+
         return app
 
 
@@ -81,6 +84,8 @@ def register_extensions(flask_app):
         me.init_app(flask_app)
     elif flask_app.config["DB_ENGINE"] == "POSTGRES":
         db.init_app(flask_app)
+        from app import models
+
         migrate.init_app(flask_app, db)
         with flask_app.app_context():
             db.create_all()

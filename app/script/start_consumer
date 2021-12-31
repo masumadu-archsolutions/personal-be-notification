@@ -14,4 +14,23 @@ until check_kafka_availability; do
 done
 >&2 echo 'Kafka is available'
 
+
+#backend_ready() {
+#python << END
+#import sys
+#import requests
+#from requests import RequestException
+#try:
+#    requests.get(url="http://backend:5001/api/customer/")
+#except RequestException as exc:
+#    sys.exit(-1) # error quit python code
+#sys.exit(0) # success
+#END
+#}
+#until backend_ready; do
+#  >&2 echo 'Waiting for Backend to become available...'
+#  sleep 1
+#done
+#>&2 echo 'Backend is available'
+
 python3 app/consumer.py

@@ -1,5 +1,7 @@
 import re
 from jinja2 import Template
+
+from app.core.exceptions import AppException
 from app.core.result import Result
 from app.repositories import SmsRepository, NotificationTemplateRepository
 from app.services import SmsService
@@ -91,7 +93,10 @@ class SmsController:
         message_template = self.template_repository.find(meta)
 
         if not message_template:
-            return "Empty message"
+            raise AppException.ResourceExists(
+                context={"template_error": "No template available for this type of sms"}
+            )
+            # return "Empty message"
         template_string = message_template.message
         template = Template(template_string)
         message = template.render(**details)

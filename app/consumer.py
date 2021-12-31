@@ -1,15 +1,17 @@
 import json
 import os
-import sys
 
 import pinject
 from kafka import KafkaConsumer
 from loguru import logger
+import sys
 
 # Add "app" root to PYTHONPATH so we can import from app i.e. from app import create_app.
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.insert(
+    0, os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+)  # noqa
 
-from app import create_app
+from app import create_app  # noqa: E402
 
 KAFKA_SUBSCRIPTIONS = os.getenv("KAFKA_SUBSCRIPTIONS", default="SMS_NOTIFICATION")
 KAFKA_BOOTSTRAP_SERVERS = os.getenv("KAFKA_BOOTSTRAP_SERVERS", default="localhost:9092")

@@ -6,7 +6,7 @@ class SMSServiceInterface(metaclass=abc.ABCMeta):
     def __subclasshook__(cls, subclass):
         return (
             (hasattr(subclass, "send"))
-            and callable(subclass.set)
+            and callable(subclass.send)
             and hasattr(subclass, "client")
         )
 

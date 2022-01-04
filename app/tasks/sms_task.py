@@ -1,7 +1,7 @@
 from app.core.exceptions import AppException
-from app.core.extensions import celery
 from app.repositories import SmsRepository
 from app.services import SmsService
+from app.celery_app import app
 
 
 sms_service_instance = SmsService()
@@ -17,7 +17,7 @@ def service_map(service):
     return sms_map.get(service)
 
 
-@celery.task
+@app.task
 def send_sms(data, service_name, repository_name):
     """
     :param data: {dict} data to be used to perform action

@@ -9,5 +9,5 @@ def init_app(app):
     :param app:
     :return:
     """
-    app.register_blueprint(sms, url_prefix="/api/v1/sms")
-    app.register_blueprint(template, url_prefix="/api/v1/templates")
+    app.register_blueprint(sms, url_prefix="/api/v1/notification/sms")
+    app.register_blueprint(template, url_prefix="/api/v1/notification/templates")  # noqa

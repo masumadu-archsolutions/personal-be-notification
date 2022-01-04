@@ -1,32 +1,38 @@
-import os
 import logging
+import os
+import sys
 
-from flask import Flask, jsonify, has_request_context, request
+from flask import Flask, has_request_context, jsonify, request
 from flask.logging import default_handler
 from flask_mongoengine import MongoEngine
-from sqlalchemy.exc import DBAPIError
-from app.core.extensions import db, migrate, ma, celery
-
 from flask_swagger_ui import get_swaggerui_blueprint
+from sqlalchemy.exc import DBAPIError
 from werkzeug.exceptions import HTTPException
 from werkzeug.utils import import_string
 
-# load dotenv in the base root
-from app.api_spec import spec
-from app.core.exceptions.app_exceptions import (
-    app_exception_handler,
-    AppExceptionCase,
-)
+# add app to system path
+sys.path.insert(
+    0, os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+)  # noqa
 
+
+from app.api_spec import spec  # noqa: E402
+from app.core.exceptions.app_exceptions import (  # noqa: E402
+    AppExceptionCase,
+    app_exception_handler,
+)
+from app.core.extensions import celery, db, ma, migrate  # noqa: E402
+
+# load dotenv in the base root
 APP_ROOT = os.path.join(os.path.dirname(__file__), "..")  # refers to application_top
 dotenv_path = os.path.join(APP_ROOT, ".env")
 
 # SWAGGER
-SWAGGER_URL = "/api/docs"
+SWAGGER_URL = "/notification/api/docs"
 API_URL = "/static/swagger.json"
 
 SWAGGERUI_BLUEPRINT = get_swaggerui_blueprint(
-    SWAGGER_URL, API_URL, config={"app_name": "Python-Flask-REST-Boilerplate"}
+    SWAGGER_URL, API_URL, config={"app_name": "nova-be-notification"}
 )
 
 
@@ -56,7 +62,6 @@ def create_app(config="config.DevelopmentConfig"):
     basedir = os.path.abspath(os.path.dirname(__file__))
     path = os.path.join(basedir, "../instance")
     app = Flask(__name__, instance_relative_config=False, instance_path=path)
-
     app.logger.addHandler(default_handler)
     with app.app_context():
         environment = os.getenv("FLASK_ENV")
@@ -64,11 +69,11 @@ def create_app(config="config.DevelopmentConfig"):
         if environment == "production":
             cfg = import_string("config.ProductionConfig")()
         app.config.from_object(cfg)
-
         # add extensions
         register_extensions(app)
         register_blueprints(app)
         register_swagger_definitions(app)
+
         return app
 
 
@@ -81,6 +86,8 @@ def register_extensions(flask_app):
         me.init_app(flask_app)
     elif flask_app.config["DB_ENGINE"] == "POSTGRES":
         db.init_app(flask_app)
+        from app import models
+
         migrate.init_app(flask_app, db)
         with flask_app.app_context():
             db.create_all()

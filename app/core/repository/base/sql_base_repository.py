@@ -62,6 +62,7 @@ class SQLBaseRepository(CRUDRepositoryInterface):
             self.db.session.commit()
             return db_obj
         except DBAPIError as e:
+            print(e)
             raise AppException.OperationError(context=e.orig.args[0])
 
     def find_by_id(self, obj_id: int):

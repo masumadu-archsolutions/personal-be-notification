@@ -1,9 +1,10 @@
 import re
 from jinja2 import Template
+
+from app.core.exceptions import AppException
 from app.core.result import Result
 from app.repositories import SmsRepository, NotificationTemplateRepository
 from app.services import SmsService
-from app.tasks.sms_task import send_sms
 
 
 class SmsController:
@@ -13,19 +14,21 @@ class SmsController:
         notification_template_repository: NotificationTemplateRepository,  # noqa
         sms_service: SmsService,
     ):
-        self.repository = sms_repository
+        self.sms_repository = sms_repository
         self.sms_service = sms_service
         self.template_repository = notification_template_repository
 
     def index(self):
-        result = self.repository.index()
+        result = self.sms_repository.index()
         return Result(result, 200)
 
     def show(self, sms_id):
-        sms = self.repository.find_by_id(sms_id)
+        sms = self.sms_repository.find_by_id(sms_id)
         return Result(sms, 200)
 
     def send_message(self, data):
+        from app.tasks.sms_task import send_sms
+
         """
         this method takes a data that consists of the recipient of the message,
         the details of the message and the message meta and fires an sms
@@ -73,7 +76,7 @@ class SmsController:
             "message": sanitized_message,
             "message_type": meta.get("type"),
         }
-        sms_record = self.repository.create(sms_record_data)
+        sms_record = self.sms_repository.create(sms_record_data)
         sms_data = {
             "sender": "Quantum",
             "recipient": recipient,
@@ -83,14 +86,17 @@ class SmsController:
         send_sms.delay(
             sms_data,
             self.sms_service.__class__.__name__,
-            self.repository.__class__.__name__,
+            self.sms_repository.__class__.__name__,
         )
 
     def generate_messages(self, details, meta):
         message_template = self.template_repository.find(meta)
 
         if not message_template:
-            return "Empty message"
+            raise AppException.ResourceExists(
+                context={"template_error": "No template available for this type of sms"}
+            )
+            # return "Empty message"
         template_string = message_template.message
         template = Template(template_string)
         message = template.render(**details)

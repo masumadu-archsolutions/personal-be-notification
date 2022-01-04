@@ -14,6 +14,7 @@ class NotificationTemplate(db.Model):
     id: str
     type: str
     subtype: str
+    message: str
     template_keywords: str
     created: datetime.datetime
     modified: datetime.datetime
@@ -45,3 +46,7 @@ class NotificationTemplate(db.Model):
     @hybrid_property
     def keywords(self):
         return json.loads(self.template_keywords) if self.template_keywords else None
+
+    @keywords.setter
+    def keywords(self, keywords):
+        self.template_keywords = json.dumps(keywords)

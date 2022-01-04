@@ -37,16 +37,6 @@ class NotificationTemplate(db.Model):
 
     __table_args__ = (Index("type_subtype_index", "type", "subtype", unique=True),)
 
-    # @property
-    # def keywords(self):
-    #     return self.template_keywords
-
-    # @keywords.setter
-    # def keywords(self, keywords):
-    #     k = keywords
-    #     print(keywords)
-    #     self.template_keywords = json.dumps(keywords)
-
     def __init__(self, type, subtype, message, keywords=None):  # noqa
         self.type = type
         self.subtype = subtype

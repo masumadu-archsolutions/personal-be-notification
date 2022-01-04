@@ -1,10 +1,12 @@
 import os
 from flask_testing import TestCase
-from app import create_app, db
+from app import create_app, db, APP_ROOT, init_celery
 from app.controllers import SmsController
 from app.repositories import NotificationTemplateRepository, SmsRepository
 from app.services import SmsService
-from config import Config
+
+# from config import Config
+import config
 
 
 class BaseTestCase(TestCase):
@@ -25,6 +27,7 @@ class BaseTestCase(TestCase):
 
     def create_app(self):
         app = create_app("config.TestingConfig")
+        print("this is the app config ", app.config)
         self.template_repository = NotificationTemplateRepository()
         self.sms_repository = SmsRepository()
         self.sms_controller = SmsController(
@@ -32,8 +35,11 @@ class BaseTestCase(TestCase):
         )
         self.access_token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"  # noqa: E501
         self.headers = {"Authorization": f"Bearer {self.access_token}"}
-        self.app_name = Config.APP_NAME
+        self.app_name = config.Config.APP_NAME
         return app
+
+    def init_celery(self):
+        return init_celery(self.create_app())
 
     @property
     def template(self):
@@ -52,27 +58,29 @@ class BaseTestCase(TestCase):
         db.session.remove()
         db.drop_all()
 
-        file = f"{Config.SQL_DB_NAME}.sqlite3"
-        os.remove(file)
+        file = f"{config.Config.SQL_DB_NAME}.sqlite3"
+        file_path = os.path.join(APP_ROOT, file)
+        os.remove(file_path)
+        # os.remove(file)
 
-    def required_roles_side_effect(  # noqa
-        self, token, key, algorithms, audience, issuer
-    ):
-        return {
-            "realm_access": {
-                "roles": [
-                    f"{Config.APP_NAME}_create_employee",
-                    f"{Config.APP_NAME}_update_employee",
-                    f"{Config.APP_NAME}_show_employee",
-                    f"{Config.APP_NAME}_delete_employee",
-                    f"{Config.APP_NAME}_create_distributor",
-                    f"{Config.APP_NAME}_get_distributor",
-                    f"{Config.APP_NAME}_get_all_distributors",
-                    f"{Config.APP_NAME}_delete_distributor",
-                    f"{Config.APP_NAME}_update_distributor",
-                ]
-            },
-        }
+    # def required_roles_side_effect(  # noqa
+    #     self, token, key, algorithms, audience, issuer
+    # ):
+    #     return {
+    #         "realm_access": {
+    #             "roles": [
+    #                 f"{Config.APP_NAME}_create_employee",
+    #                 f"{Config.APP_NAME}_update_employee",
+    #                 f"{Config.APP_NAME}_show_employee",
+    #                 f"{Config.APP_NAME}_delete_employee",
+    #                 f"{Config.APP_NAME}_create_distributor",
+    #                 f"{Config.APP_NAME}_get_distributor",
+    #                 f"{Config.APP_NAME}_get_all_distributors",
+    #                 f"{Config.APP_NAME}_delete_distributor",
+    #                 f"{Config.APP_NAME}_update_distributor",
+    #             ]
+    #         },
+    #     }
 
     def no_role_side_effect(self, token, key, algorithms, audience, issuer):  # noqa
         return {

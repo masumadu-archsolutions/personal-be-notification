@@ -1,9 +1,9 @@
-from config import Config
 from requests import request
 from requests.exceptions import RequestException
 
 from app.core.exceptions import AppException
 from app.core.service_interfaces import SMSServiceInterface
+from config import Config
 
 
 class SmsService(SMSServiceInterface):

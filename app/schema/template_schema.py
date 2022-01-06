@@ -1,5 +1,7 @@
 from marshmallow import Schema, fields, validate
 
+from app.enums import channel_subtype, notification_channel
+
 
 class KeywordSchema(Schema):
     placeholder = fields.String(
@@ -17,11 +19,12 @@ class TemplateSchema(Schema):
     id = fields.UUID(required=True)
     type = fields.String(
         required=True,
-        validate=validate.OneOf(
-            ["sms_notification", "email_notification", "push_notification"]
-        ),
+        validate=validate.OneOf(notification_channel()),
     )
-    subtype = fields.String(required=True)
+    subtype = fields.String(
+        required=True,
+        validate=validate.OneOf(channel_subtype()),
+    )
     message = fields.String(required=True)
     keywords = fields.Nested(KeywordSchema(many=True))
     created = fields.DateTime(required=True)
@@ -32,9 +35,8 @@ class TemplateSchema(Schema):
             "id",
             "type",
             "subtype",
-            "template",
-            "keywords",
             "message",
+            "keywords",
             "created",
             "modified",
         ]
@@ -44,11 +46,9 @@ class TemplateSchema(Schema):
 class TemplateCreateSchema(Schema):
     type = fields.String(
         required=True,
-        validate=validate.OneOf(
-            ["sms_notification", "email_notification", "push_notification"]
-        ),
+        validate=validate.OneOf(notification_channel()),
     )
-    subtype = fields.String(required=True)
+    subtype = fields.String(required=True, validate=validate.OneOf(channel_subtype()))
     message = fields.String(required=True)
     keywords = fields.Nested(KeywordSchema(many=True))
 
@@ -56,10 +56,8 @@ class TemplateCreateSchema(Schema):
 class TemplateUpdateSchema(Schema):
     type = fields.String(
         required=True,
-        validate=validate.OneOf(
-            ["sms_notification", "email_notification", "push_notification"]
-        ),
+        validate=validate.OneOf(notification_channel()),
     )
-    subtype = fields.String()
+    subtype = fields.String(validate=validate.OneOf(channel_subtype()))
     message = fields.String()
     keywords = fields.Nested(KeywordSchema(many=True))

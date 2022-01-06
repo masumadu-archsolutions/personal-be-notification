@@ -1,2 +1,2 @@
-from .sms_repository import SmsRepository
 from .notification_template_repository import NotificationTemplateRepository
+from .sms_repository import SmsRepository

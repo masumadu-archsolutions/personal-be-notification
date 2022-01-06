@@ -1,4 +1,5 @@
 from functools import wraps
+
 from flask import request
 
 from app.core.exceptions.app_exceptions import AppException

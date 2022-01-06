@@ -1,55 +1,55 @@
 import os
+
 from flask_testing import TestCase
-from app import create_app, db, APP_ROOT, init_celery
-from app.controllers import SmsController
+
+import config
+from app import APP_ROOT, create_app, db, init_celery
+from app.controllers import NotificationTemplateController, SmsController
+from app.models import NotificationTemplateModel, SMSModel
 from app.repositories import NotificationTemplateRepository, SmsRepository
 from app.services import SmsService
-
-# from config import Config
-import config
+from tests.utils import MockSideEffects, SMSTestData, TemplateTestData
 
 
 class BaseTestCase(TestCase):
-    keywords = [
-        {"description": "The username", "is_sensitive": True, "placeholder": "username"}
-    ]
-
-    message = "Hello {{username}}, have a great day"
-    message_type = "sms_notification"
-    subtype = "daily_greeting"
-
-    data = {
-        "keywords": keywords,
-        "message": message,
-        "type": message_type,
-        "subtype": subtype,
-    }
-
     def create_app(self):
         app = create_app("config.TestingConfig")
-        print("this is the app config ", app.config)
-        self.template_repository = NotificationTemplateRepository()
-        self.sms_repository = SmsRepository()
-        self.sms_controller = SmsController(
-            self.sms_repository, self.template_repository, SmsService()
-        )
-        self.access_token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"  # noqa: E501
-        self.headers = {"Authorization": f"Bearer {self.access_token}"}
-        self.app_name = config.Config.APP_NAME
+        self.setup_patches()
+        self.instantiate_classes()
         return app
 
     def init_celery(self):
         return init_celery(self.create_app())
 
-    @property
-    def template(self):
-        return self.template_repository.create(self.data)
+    def instantiate_classes(self):
+        self.template_repository = NotificationTemplateRepository()
+        self.template_controller = NotificationTemplateController(
+            self.template_repository
+        )
+        self.sms_repository = SmsRepository()
+        self.sms_service = SmsService()
+        self.sms_controller = SmsController(
+            self.sms_repository, self.template_repository, self.sms_service
+        )
+        self.template_test_data = TemplateTestData()
+        self.sms_test_data = SMSTestData()
+        self.side_effect = MockSideEffects()
+
+    def setup_patches(self):
+        pass
 
     def setUp(self):
         """
         Will be called before every test
         """
         db.create_all()
+        self.template_test_model = NotificationTemplateModel(
+            **self.template_test_data.existing_template
+        )
+        self.sms_model = SMSModel(**self.sms_test_data.existing_sms)
+        db.session.add(self.template_test_model)
+        db.session.add(self.sms_model)
+        db.session.commit()
 
     def tearDown(self):
         """
@@ -61,28 +61,3 @@ class BaseTestCase(TestCase):
         file = f"{config.Config.SQL_DB_NAME}.sqlite3"
         file_path = os.path.join(APP_ROOT, file)
         os.remove(file_path)
-        # os.remove(file)
-
-    # def required_roles_side_effect(  # noqa
-    #     self, token, key, algorithms, audience, issuer
-    # ):
-    #     return {
-    #         "realm_access": {
-    #             "roles": [
-    #                 f"{Config.APP_NAME}_create_employee",
-    #                 f"{Config.APP_NAME}_update_employee",
-    #                 f"{Config.APP_NAME}_show_employee",
-    #                 f"{Config.APP_NAME}_delete_employee",
-    #                 f"{Config.APP_NAME}_create_distributor",
-    #                 f"{Config.APP_NAME}_get_distributor",
-    #                 f"{Config.APP_NAME}_get_all_distributors",
-    #                 f"{Config.APP_NAME}_delete_distributor",
-    #                 f"{Config.APP_NAME}_update_distributor",
-    #             ]
-    #         },
-    #     }
-
-    def no_role_side_effect(self, token, key, algorithms, audience, issuer):  # noqa
-        return {
-            "realm_access": {"roles": []},
-        }

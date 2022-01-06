@@ -6,7 +6,7 @@ from apispec.ext.marshmallow import MarshmallowPlugin
 from apispec_webframeworks.flask import FlaskPlugin
 
 # Create an APISpec
-from app.schema import TemplateSchema, TemplateUpdateSchema, TemplateCreateSchema
+from app.schema import TemplateCreateSchema, TemplateSchema, TemplateUpdateSchema
 
 spec = APISpec(
     title="Notification Template",

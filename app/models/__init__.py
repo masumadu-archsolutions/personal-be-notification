@@ -1,2 +1,2 @@
-from .sms_model import SMS
-from .notification_template_model import NotificationTemplate
+from .notification_template_model import NotificationTemplateModel
+from .sms_model import SMSModel

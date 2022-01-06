@@ -2,7 +2,7 @@ from app.core.result import Result
 from app.repositories import NotificationTemplateRepository
 
 
-class TemplateController:
+class NotificationTemplateController:
     def __init__(self, notification_template_repository: NotificationTemplateRepository):
         self.repository = notification_template_repository
 

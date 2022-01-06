@@ -1,14 +1,14 @@
 import datetime
 import uuid
-
 from dataclasses import dataclass
 
 from sqlalchemy.sql import func
+
 from app import db
 
 
 @dataclass
-class SMS(db.Model):
+class SMSModel(db.Model):
     id: str
     recipient: str
     message_type: str

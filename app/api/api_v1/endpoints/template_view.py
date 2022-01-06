@@ -1,19 +1,20 @@
 import pinject
 from flask import Blueprint, request
 
-from app.controllers import TemplateController
+from app.controllers import NotificationTemplateController
 from app.core.service_result import handle_result
 from app.repositories import NotificationTemplateRepository
-from app.schema import TemplateSchema, TemplateCreateSchema, TemplateUpdateSchema
+from app.schema import TemplateCreateSchema, TemplateSchema, TemplateUpdateSchema
 from app.utils import validator
 
 template = Blueprint("template", __name__)
 
 obj_graph = pinject.new_object_graph(
-    modules=None, classes=[TemplateController, NotificationTemplateRepository]
+    modules=None,
+    classes=[NotificationTemplateController, NotificationTemplateRepository],
 )
 
-template_controller = obj_graph.provide(TemplateController)
+template_controller = obj_graph.provide(NotificationTemplateController)
 
 
 @template.route("/", methods=["POST"])

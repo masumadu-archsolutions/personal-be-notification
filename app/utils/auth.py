@@ -1,8 +1,8 @@
+import inspect
 import os
+from functools import wraps
 
 import jwt
-import inspect
-from functools import wraps
 from flask import request
 from jwt.exceptions import ExpiredSignatureError, InvalidTokenError, PyJWTError
 

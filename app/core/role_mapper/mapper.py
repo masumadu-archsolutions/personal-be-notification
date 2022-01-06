@@ -1,13 +1,14 @@
-import os
-import yaml
-import pathlib
-import click
 import itertools as it
+import os
+import pathlib
+
+import click
+import yaml
 from flask import Flask
-from config import Config
 
 from app.core.exceptions import AppException
 from app.services.keycloak_service import AuthService
+from config import Config
 
 auth_service = AuthService()
 service_name = Config.SERVICE_NAME

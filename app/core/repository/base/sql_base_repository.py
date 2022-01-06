@@ -1,11 +1,9 @@
-from sqlalchemy.exc import IntegrityError, DBAPIError
-from app import db
+from sqlalchemy.exc import DBAPIError, IntegrityError
 
-from app.core.exceptions.HTTPException import HTTPException
+from app import db
 from app.core.exceptions.app_exceptions import AppException
-from app.core.repository.base.crud_repository_interface import (
-    CRUDRepositoryInterface,
-)
+from app.core.exceptions.HTTPException import HTTPException
+from app.core.repository.base.crud_repository_interface import CRUDRepositoryInterface
 
 
 class SQLBaseRepository(CRUDRepositoryInterface):

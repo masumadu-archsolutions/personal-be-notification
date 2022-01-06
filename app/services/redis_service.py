@@ -1,10 +1,11 @@
 import json
+
 import redis
 from redis.exceptions import RedisError
-from config import Config
+
 from app.core.exceptions import HTTPException
 from app.core.service_interfaces import CacheServiceInterface
-
+from config import Config
 
 REDIS_SERVER = Config.REDIS_SERVER
 REDIS_PASSWORD = Config.REDIS_PASSWORD

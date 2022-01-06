@@ -1,22 +1,44 @@
-from tests.base_test_case import BaseTestCase
+from unittest import mock
 
-# from unittest import mock
-# from app.tasks.sms_task import send_sms
+import pytest
+
+from app.core.exceptions import AppException
+from app.core.result import Result
+from app.models import NotificationTemplateModel, SMSModel
+from tests import BaseTestCase
 
 
 class TestSmsController(BaseTestCase):
-    pass
-    # @mock.patch("app.controllers.tasks")
-    # def test_send_message(self):
-    #     sms_template = self.template
-    #
-    #     sms_details = {"username": "john"}
-    #
-    #     meta = {"type": sms_template.type, "subtype": sms_template.subtype}
-    #
-    #     recipient = "0241112223"
-    #     with mock.patch.object(send_sms, "delay") as mock_send_sms:
-    #         self.sms_controller.send_message(
-    #             {"recipient": recipient, "details": sms_details, "meta": meta}
-    #         )
-    #     self.assertTrue(mock_send_sms.called)
+    @pytest.mark.controller
+    def test_index(self):
+        self.assertEqual(SMSModel.query.count(), 1)
+        get_all_sms = self.sms_controller.index()
+        self.assertIsInstance(get_all_sms, Result)
+        self.assertEqual(get_all_sms.status_code, 200)
+        self.assertIsInstance(get_all_sms.value, list)
+
+    @pytest.mark.controller
+    def test_show(self):
+        self.assertEqual(SMSModel.query.count(), 1)
+        get_sms = self.sms_controller.show(self.sms_model.id)
+        self.assertIsNotNone(get_sms)
+        self.assertIsInstance(get_sms, Result)
+        self.assertEqual(get_sms.status_code, 200)
+        self.assertIsInstance(get_sms.value, SMSModel)
+        self.assertEqual(get_sms.value, self.sms_model)
+
+    @pytest.mark.controller
+    @mock.patch("app.init_celery")
+    def test_send_message(self, mock_celery):
+        mock_celery.side_effect = self.init_celery
+        self.assertEqual(NotificationTemplateModel.query.count(), 1)
+        self.assertEqual(SMSModel.query.count(), 1)
+        with mock.patch("app.tasks.sms_task.send_sms.delay") as mock_delay:
+            self.sms_controller.send_message(self.sms_test_data.new_sms)
+        self.assertTrue(mock_delay.called)
+        exception_data = self.sms_test_data.new_sms
+        exception_data["meta"]["subtype"] = "pin_change"
+        with self.assertRaises(AppException.NotFoundException) as not_found_exc:
+            self.sms_controller.send_message(exception_data)
+        self.assertTrue(not_found_exc.exception)
+        self.assert404(not_found_exc.exception)

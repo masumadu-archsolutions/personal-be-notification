@@ -1,6 +1,8 @@
 import enum
 import uuid
+
 from sqlalchemy.sql import func
+
 from app import db
 
 
@@ -9,7 +11,7 @@ class EmailTypeEnum(enum.Enum):
     general = "general"
 
 
-class Email(db.Model):
+class EmailModel(db.Model):
     __tablename__ = "email"
     id = db.Column(db.GUID(), primary_key=True, default=uuid.uuid4)
     recipient_email = db.Column(db.String(60))

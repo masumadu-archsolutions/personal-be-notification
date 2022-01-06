@@ -3,7 +3,7 @@ from flask import Blueprint
 
 from app.controllers import SmsController
 from app.core.service_result import handle_result
-from app.repositories import SmsRepository, NotificationTemplateRepository
+from app.repositories import NotificationTemplateRepository, SmsRepository
 from app.schema import SMSSchema
 from app.services import SmsService
 
@@ -17,15 +17,15 @@ obj_graph = pinject.new_object_graph(
 sms_controller = obj_graph.provide(SmsController)
 
 
-@sms.route("/send-sms", methods=["GET"])
-def send_sms():
-    data = {
-        "recipient": "0247049596",
-        "details": {"name": "Michael", "pin": "123456"},
-        "meta": {"type": "sms_notification", "subtype": "pin_change"},
-    }
-    sms_controller.send_message(data)
-    return "true"
+# @sms.route("/send-sms", methods=["GET"])
+# def send_sms():
+#     data = {
+#         "recipient": "0247049596",
+#         "details": {"name": "Michael", "pin": "123456"},
+#         "meta": {"type": "sms_notification", "subtype": "pin_change"},
+#     }
+#     sms_controller.send_message(data)
+#     return "true"
 
 
 @sms.route("/")

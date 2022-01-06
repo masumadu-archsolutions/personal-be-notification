@@ -1,13 +1,14 @@
 # from app.core.exceptions import AppException
 from tests.base_test_case import BaseTestCase
-import pytest
+
+# import pytest
 
 
 class TestNotificationTemplateRepository(BaseTestCase):
-    # pass
-    @pytest.mark.active
-    def test_create(self):
-        self.assertEqual(self.template.subtype, self.subtype)
+    pass
+    # @pytest.mark.active
+    # def test_create(self):
+    #     self.assertEqual(self.template.subtype, self.subtype)
 
     # #
     # def test_find_by_id(self):

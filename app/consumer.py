@@ -1,10 +1,10 @@
 import json
 import os
+import sys
 
 import pinject
 from kafka import KafkaConsumer
 from loguru import logger
-import sys
 
 # Add "app" root to PYTHONPATH so we can import from app i.e. from app import create_app.
 sys.path.insert(

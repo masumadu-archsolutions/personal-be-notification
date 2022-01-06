@@ -29,7 +29,7 @@ def run_seeder(count, model, db):
                 migrate(subclass, db)
         else:
             for subclass in Seeder.__subclasses__():
-                if model.lower() == subclass.__name__.lower()[:-7]:
+                if model.lower() == subclass.__name__.lower()[4:]:
                     migrate(subclass, db)
         Seeder.run()
 

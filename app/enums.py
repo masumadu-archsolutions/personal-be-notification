@@ -7,16 +7,23 @@ class NotificationEnum(enum.Enum):
     push = {"type": "push_notification", "subtype": []}
 
 
-def notification_channel():
-    channel = []
+def get_notification_type():
+    notification_type = []
     for notification in NotificationEnum:
-        channel.append(notification.value.get("type"))
-    return channel
+        notification_type.append(notification.value.get("type"))
+    return notification_type
 
 
-def channel_subtype():
+def get_notification_subtype():
     notification_subtype = []
     for notification in NotificationEnum:
         for subtype in notification.value.get("subtype"):
             notification_subtype.append(subtype)
     return notification_subtype
+
+
+def get_subtype(notification_type):
+    for notification in NotificationEnum:
+        enum_value = notification.value
+        if notification_type and enum_value.get("type") == notification_type:
+            return enum_value.get("subtype")

@@ -2,7 +2,7 @@ from loguru import logger
 from sqlalchemy.exc import SQLAlchemyError
 
 from app.core.factory import Seeder
-from app.enums import channel_subtype, notification_channel
+from app.enums import get_notification_subtype, get_notification_type
 from app.models import NotificationTemplateModel, SMSModel
 
 
@@ -23,8 +23,8 @@ class SeedNotificationTemplateModel(Seeder):
     @classmethod
     def run(cls):
         template = NotificationTemplateModel(
-            type=cls.fake.random_element(notification_channel()),
-            subtype=cls.fake.random_element(channel_subtype()),
+            type=cls.fake.random_element(get_notification_type()),
+            subtype=cls.fake.random_element(get_notification_subtype()),
             message=cls.fake.text(),
             keywords=generate_random_keywords(
                 placeholder=cls.fake.word(),
@@ -45,7 +45,7 @@ class SeedSMSModel(Seeder):
     def run(cls):
         sms = SMSModel(
             recipient=cls.fake.random_number(digits=10, fix_len=True),
-            message_type=cls.fake.random_element(elements=notification_channel()),
+            message_type=cls.fake.random_element(elements=get_notification_type()),
             message=cls.fake.text(),
             reference=cls.fake.random_number(digits=15, fix_len=True),
             sms_client=cls.fake.word(),

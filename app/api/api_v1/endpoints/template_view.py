@@ -25,8 +25,8 @@ def create_template():
     ---
     post:
       description: creates a new template
-      security:
-        - bearerAuth: []
+      # security:
+      #   - bearerAuth: []
       requestBody:
         required: true
         content:
@@ -56,8 +56,8 @@ def get_all_templates():
     ---
     get:
       description: returns all templates
-      security:
-        - bearerAuth: []
+      # security:
+      #   - bearerAuth: []
       responses:
         '200':
           description: returns a customer
@@ -124,8 +124,8 @@ def update_template(template_id):
         content:
             application/json:
                 schema: TemplateUpdateSchema
-      security:
-        - bearerAuth: []
+      # security:
+      #   - bearerAuth: []
       responses:
         '200':
           description: returns a template
@@ -157,8 +157,8 @@ def delete_template(template_id):
           schema:
             type: string
           description: The template ID
-      security:
-        - bearerAuth: []
+      # security:
+      #   - bearerAuth: []
       responses:
         '200':
           description: returns nothing

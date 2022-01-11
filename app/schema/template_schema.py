@@ -1,6 +1,6 @@
-from marshmallow import Schema, fields, validate
+from marshmallow import Schema, fields, validate, validates_schema, ValidationError
 
-from app.enums import channel_subtype, notification_channel
+from app.enums import get_notification_type, get_notification_subtype, get_subtype
 
 
 class KeywordSchema(Schema):
@@ -17,18 +17,21 @@ class KeywordSchema(Schema):
 
 class TemplateSchema(Schema):
     id = fields.UUID(required=True)
-    type = fields.String(
-        required=True,
-        validate=validate.OneOf(notification_channel()),
-    )
+    type = fields.String(required=True, validate=validate.OneOf(get_notification_type()))
     subtype = fields.String(
         required=True,
-        validate=validate.OneOf(channel_subtype()),
+        validate=validate.OneOf(get_notification_subtype()),
     )
     message = fields.String(required=True)
     keywords = fields.Nested(KeywordSchema(many=True))
     created = fields.DateTime(required=True)
     modified = fields.DateTime(required=True)
+
+    @validates_schema
+    def validate_subtype(self, field, **kwargs):
+        subtype = field.get("subtype")
+        if subtype and subtype not in get_subtype(field.get("type")):
+            raise ValidationError(f"subtype must be one of {get_subtype(field['type'])}")
 
     class Meta:
         fields = [
@@ -43,21 +46,29 @@ class TemplateSchema(Schema):
         ordered = True
 
 
-class TemplateCreateSchema(Schema):
-    type = fields.String(
-        required=True,
-        validate=validate.OneOf(notification_channel()),
-    )
-    subtype = fields.String(required=True, validate=validate.OneOf(channel_subtype()))
-    message = fields.String(required=True)
-    keywords = fields.Nested(KeywordSchema(many=True))
+class TemplateCreateSchema(TemplateSchema):
+    class Meta:
+        fields = [
+            "type",
+            "subtype",
+            "message",
+            "keywords",
+        ]
 
 
-class TemplateUpdateSchema(Schema):
+class TemplateUpdateSchema(TemplateSchema):
     type = fields.String(
         required=True,
-        validate=validate.OneOf(notification_channel()),
+        validate=validate.OneOf(get_notification_type()),
     )
-    subtype = fields.String(validate=validate.OneOf(channel_subtype()))
+    subtype = fields.String(validate=validate.OneOf(get_notification_subtype()))
     message = fields.String()
     keywords = fields.Nested(KeywordSchema(many=True))
+
+    class Meta:
+        fields = [
+            "type",
+            "subtype",
+            "message",
+            "keywords",
+        ]

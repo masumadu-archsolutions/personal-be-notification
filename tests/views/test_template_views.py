@@ -38,7 +38,7 @@ class TestSMSView(BaseTestCase):
             self.assert200(response)
             self.assertIsInstance(response_data, dict)
 
-    @pytest.mark.views
+    @pytest.mark.active
     def test_update_template(self):
         self.assertEqual(NotificationTemplateModel.query.count(), 1)
         template = NotificationTemplateModel.query.get(self.template_test_model.id)

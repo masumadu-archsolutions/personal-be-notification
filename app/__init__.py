@@ -28,11 +28,11 @@ APP_ROOT = os.path.join(os.path.dirname(__file__), "..")  # refers to applicatio
 dotenv_path = os.path.join(APP_ROOT, ".env")
 
 # SWAGGER
-SWAGGER_URL = "/notification/api/docs"
+SWAGGER_URL = "/api/notification/docs"
 API_URL = "/static/swagger.json"
 
 SWAGGERUI_BLUEPRINT = get_swaggerui_blueprint(
-    SWAGGER_URL, API_URL, config={"app_name": "nova-be-notification"}
+    SWAGGER_URL, API_URL, config={"app_name": "Nova Notification Service"}
 )
 
 

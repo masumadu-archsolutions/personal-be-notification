@@ -4,15 +4,25 @@
 from apispec import APISpec
 from apispec.ext.marshmallow import MarshmallowPlugin
 from apispec_webframeworks.flask import FlaskPlugin
+import os
+import json
 
-# Create an APISpec
 from app.schema import TemplateCreateSchema, TemplateSchema, TemplateUpdateSchema
 
+# get swagger.json file path
+swagger_json_path = os.path.dirname(__file__) + "/static/swagger.json"
+
+# load swagger.json file
+with open(swagger_json_path) as apispec_info:
+    spec_info = json.load(apispec_info).get("info")
+
+# Create an APISpec
 spec = APISpec(
-    title="Notification Template",
+    title=spec_info.get("title"),
     version="1.0.0",
     openapi_version="3.0.2",
     plugins=[FlaskPlugin(), MarshmallowPlugin()],
+    info=spec_info,
 )
 
 # Security

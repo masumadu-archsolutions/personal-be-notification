@@ -1,7 +1,7 @@
 import re
 
 from jinja2 import Template
-
+from loguru import logger
 from app.core.exceptions import AppException
 from app.core.result import Result
 from app.repositories import NotificationTemplateRepository, SmsRepository
@@ -70,34 +70,34 @@ class SmsController:
         meta = data.get("meta")
         generated_message = self.generate_messages(details=details, meta=meta)
         sanitized_message = generated_message.get("sanitized_message")
-        message = generated_message.get("message")
+        if sanitized_message:
+            message = generated_message.get("message")
 
-        sms_record_data = {
-            "recipient": recipient,
-            "message": sanitized_message,
-            "message_type": meta.get("type"),
-        }
-        sms_record = self.sms_repository.create(sms_record_data)
-        sms_data = {
-            "sender": "Quantum",
-            "recipient": recipient,
-            "message": message,
-            "message_id": sms_record.id,
-        }
-        send_sms.delay(
-            sms_data,
-            self.sms_service.__class__.__name__,
-            self.sms_repository.__class__.__name__,
-        )
+            sms_record_data = {
+                "recipient": recipient,
+                "message": sanitized_message,
+                "message_type": meta.get("type"),
+            }
+            sms_record = self.sms_repository.create(sms_record_data)
+            sms_data = {
+                "sender": "Quantum",
+                "recipient": recipient,
+                "message": message,
+                "message_id": sms_record.id,
+            }
+            send_sms.delay(
+                sms_data,
+                self.sms_service.__class__.__name__,
+                self.sms_repository.__class__.__name__,
+            )
 
     def generate_messages(self, details, meta):
         message_template = self.template_repository.find(meta)
 
         if not message_template:
-            raise AppException.NotFoundException(
-                context={"template_error": "No template available for this type of sms"}
-            )
-            # return "Empty message"
+            logger.error("template_error: No template available for this type of sms")
+            return {}
+
         template_string = message_template.message
         template = Template(template_string)
         message = template.render(**details)

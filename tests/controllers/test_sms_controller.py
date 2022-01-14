@@ -38,7 +38,6 @@ class TestSmsController(BaseTestCase):
         self.assertTrue(mock_delay.called)
         exception_data = self.sms_test_data.new_sms
         exception_data["meta"]["subtype"] = "pin_change"
-        with self.assertRaises(AppException.NotFoundException) as not_found_exc:
-            self.sms_controller.send_message(exception_data)
-        self.assertTrue(not_found_exc.exception)
-        self.assert404(not_found_exc.exception)
+        template_error = self.sms_test_data.new_sms
+        template_error["meta"]["subtype"] = "pin_change"
+        self.assertIsNone(self.sms_controller.send_message(template_error))

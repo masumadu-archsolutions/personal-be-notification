@@ -1,6 +1,6 @@
-from marshmallow import Schema, fields, validate, validates_schema, ValidationError
+from marshmallow import Schema, ValidationError, fields, validate, validates_schema
 
-from app.enums import get_notification_type, get_notification_subtype, get_subtype
+from app.enums import get_notification_subtype, get_notification_type, get_subtype
 
 
 class KeywordSchema(Schema):

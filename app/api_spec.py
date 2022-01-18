@@ -1,11 +1,12 @@
 """OpenAPI v3 Specification"""
 
 # apispec via OpenAPI
+import json
+import os
+
 from apispec import APISpec
 from apispec.ext.marshmallow import MarshmallowPlugin
 from apispec_webframeworks.flask import FlaskPlugin
-import os
-import json
 
 from app.schema import TemplateCreateSchema, TemplateSchema, TemplateUpdateSchema
 

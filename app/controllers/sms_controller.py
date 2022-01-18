@@ -2,6 +2,7 @@ import re
 
 from jinja2 import Template
 from loguru import logger
+
 from app.core.exceptions import AppException
 from app.core.result import Result
 from app.repositories import NotificationTemplateRepository, SmsRepository

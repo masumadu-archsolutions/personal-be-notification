@@ -1,7 +1,9 @@
 import os
 import sys
-from app import dotenv_path
+
 from dotenv import load_dotenv
+
+from app import dotenv_path
 
 load_dotenv(dotenv_path)
 

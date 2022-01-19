@@ -1,3 +1,4 @@
+from loguru import logger
 from requests import request
 from requests.exceptions import RequestException
 
@@ -27,6 +28,10 @@ class SmsService(SMSServiceInterface):
             )
             result = request("GET", request_url)
             data = result.json()
+            logger.info("message sent successfully to sms provider")
             return {"reference": data.get("messageId")}
-        except RequestException:
+        except RequestException as exc:
+            logger.error(
+                f"error sending message to sms provider with error message {exc.args}"
+            )
             raise AppException.OperationError(context="Error sending sms")

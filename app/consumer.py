@@ -61,4 +61,4 @@ if __name__ == "__main__":
                 sms_controller = obj_graph.provide(SmsController)
                 data = json.loads(msg.value)
                 sms_controller.send_message(data)
-        logger.info("message successfully consumed")
+            logger.info("message successfully consumed\n")

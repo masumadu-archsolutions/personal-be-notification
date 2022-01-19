@@ -56,7 +56,9 @@ jobs:
         run: poetry install
 
       - name: Run pre-commit
-        uses: pre-commit/action@v2.0.2
+        run: |
+          pre-commit install
+          pre-commit run --all-files
 
       - name: Test with pytest
         run: |

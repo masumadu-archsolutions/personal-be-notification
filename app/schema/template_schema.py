@@ -22,7 +22,8 @@ class TemplateSchema(Schema):
         required=True,
         validate=validate.OneOf(get_notification_subtype()),
     )
-    message = fields.String(required=True)
+    # message = fields.String(required=True)
+    template_file = fields.String(required=True)
     keywords = fields.Nested(KeywordSchema(many=True))
     created = fields.DateTime(required=True)
     modified = fields.DateTime(required=True)
@@ -38,7 +39,7 @@ class TemplateSchema(Schema):
             "id",
             "type",
             "subtype",
-            "message",
+            "template_file",
             "keywords",
             "created",
             "modified",
@@ -51,7 +52,7 @@ class TemplateCreateSchema(TemplateSchema):
         fields = [
             "type",
             "subtype",
-            "message",
+            "template_file",
             "keywords",
         ]
 
@@ -62,13 +63,13 @@ class TemplateUpdateSchema(TemplateSchema):
         validate=validate.OneOf(get_notification_type()),
     )
     subtype = fields.String(validate=validate.OneOf(get_notification_subtype()))
-    message = fields.String()
+    template_file = fields.String()
     keywords = fields.Nested(KeywordSchema(many=True))
 
     class Meta:
         fields = [
             "type",
             "subtype",
-            "message",
+            "template_file",
             "keywords",
         ]

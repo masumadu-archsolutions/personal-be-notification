@@ -25,7 +25,7 @@ class SeedNotificationTemplateModel(Seeder):
         template = NotificationTemplateModel(
             type=cls.fake.random_element(get_notification_type()),
             subtype=cls.fake.random_element(get_notification_subtype()),
-            message=cls.fake.text(),
+            template_file=cls.fake.text(),
             keywords=generate_random_keywords(
                 placeholder=cls.fake.word(),
                 description=cls.fake.sentence(),

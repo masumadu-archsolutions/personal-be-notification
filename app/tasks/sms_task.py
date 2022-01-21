@@ -1,5 +1,3 @@
-from loguru import logger
-
 from app.celery_app import celery
 from app.core.exceptions import AppException
 from app.repositories import SmsRepository

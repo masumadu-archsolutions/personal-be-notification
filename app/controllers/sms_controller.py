@@ -1,9 +1,9 @@
+import os.path
 import re
 
-from jinja2 import Template
+from flask import render_template
 from loguru import logger
 
-from app.core.exceptions import AppException
 from app.core.result import Result
 from app.repositories import NotificationTemplateRepository, SmsRepository
 from app.services import SmsService
@@ -70,8 +70,8 @@ class SmsController:
         details = data.get("details")
         meta = data.get("meta")
         generated_message = self.generate_messages(details=details, meta=meta)
-        sanitized_message = generated_message.get("sanitized_message")
-        if sanitized_message:
+        if generated_message:
+            sanitized_message = generated_message.get("sanitized_message")
             message = generated_message.get("message")
 
             sms_record_data = {
@@ -95,13 +95,23 @@ class SmsController:
     def generate_messages(self, details, meta):
         message_template = self.template_repository.find(meta)
 
+        # check if template exist in database
         if not message_template:
             logger.error("template_error: No template available for this type of sms")
-            return {}
+            return None
 
-        template_string = message_template.message
-        template = Template(template_string)
-        message = template.render(**details)
+        template_directory = "sms"
+        parent_directory = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+        sms_templates = os.listdir(f"{parent_directory}/templates/{template_directory}")
+        template_name = message_template.template_file
+
+        if not sms_templates or template_name not in sms_templates:
+            logger.error(
+                f"template_error: template file {template_name} not found"
+            )  # noqa
+            return None
+
+        message = render_template(f"{template_directory}/{template_name}", **details)
 
         # get keywords from message_template
         keywords = message_template.keywords
@@ -111,6 +121,8 @@ class SmsController:
                 item = keyword.get("placeholder")
                 details[item] = re.sub(".", "*", str(details.get(item)))
 
-        redacted_message = template.render(**details)
+        redacted_message = render_template(
+            f"{template_directory}/{template_name}", **details
+        )
 
         return {"message": message, "sanitized_message": redacted_message}

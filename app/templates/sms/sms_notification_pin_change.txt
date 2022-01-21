@@ -1,0 +1,2 @@
+[Novagas] Hello {{ name }}, your accounts password has been reset. If you didn't
+perform this action, please contact customer support on novagas@support.com. Thank You.

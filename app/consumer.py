@@ -3,6 +3,7 @@ import os
 import sys
 
 import pinject
+from dotenv import load_dotenv
 from kafka import KafkaConsumer
 from kafka.errors import KafkaError
 from loguru import logger
@@ -12,7 +13,11 @@ sys.path.insert(
     0, os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 )  # noqa
 
-from app import create_app  # noqa: E402
+from app import APP_ROOT, create_app  # noqa: E402
+
+# load .env file into system
+dotenv_path = os.path.join(APP_ROOT, ".env")
+load_dotenv(dotenv_path)
 
 KAFKA_SUBSCRIPTIONS = os.getenv("KAFKA_SUBSCRIPTIONS", default="SMS_NOTIFICATION")
 KAFKA_BOOTSTRAP_SERVERS = os.getenv("KAFKA_BOOTSTRAP_SERVERS", default="localhost:9092")
@@ -34,19 +39,24 @@ if __name__ == "__main__":
         logger.error(f"Failed to consume message on Kafka broker with error {exc}")
     else:
         consumer.subscribe(subscriptions)
-        logger.info("AWAITING MESSAGES")
+        logger.info("AWAITING MESSAGES\n")
 
         app = create_app()
         app_ctx = app.app_context()
         app_ctx.push()
 
         # Application context should be registered before importing from app
-        from app.controllers import SmsController
-        from app.repositories import NotificationTemplateRepository, SmsRepository
-        from app.services import SmsService
+        from app.controllers import EmailController, SmsController
+        from app.repositories import (
+            EmailRepository,
+            NotificationTemplateRepository,
+            SmsRepository,
+        )
+        from app.services import EmailService, SmsService
 
         for msg in consumer:
-            logger.info("message received")
+            data = json.loads(msg.value)
+            logger.info(f"originating service: {data.get('service_name')}")
             logger.info(f"topic consuming: {msg.topic}")
             if msg.topic == "SMS_NOTIFICATION":
                 obj_graph = pinject.new_object_graph(
@@ -59,6 +69,17 @@ if __name__ == "__main__":
                     ],
                 )
                 sms_controller = obj_graph.provide(SmsController)
-                data = json.loads(msg.value)
                 sms_controller.send_message(data)
-            logger.info("message successfully consumed\n")
+            elif msg.topic == "EMAIL_NOTIFICATION":
+                obj_graph = pinject.new_object_graph(
+                    modules=None,
+                    classes=[
+                        EmailController,
+                        EmailRepository,
+                        EmailService,
+                        NotificationTemplateRepository,
+                    ],
+                )
+                email_controller = obj_graph.provide(EmailController)
+                email_controller.send_mail(data)
+            logger.info("message status: successfully consumed\n")

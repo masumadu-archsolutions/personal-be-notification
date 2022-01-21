@@ -1,6 +1,6 @@
 FROM python:3.8-slim as base
 
-RUN apt-get update && apt-get install --no-install-recommends -y iputils-ping
+#RUN apt-get update && apt-get install --no-install-recommends -y iputils-ping
 
 FROM base as builder
 

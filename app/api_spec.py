@@ -8,7 +8,13 @@ from apispec import APISpec
 from apispec.ext.marshmallow import MarshmallowPlugin
 from apispec_webframeworks.flask import FlaskPlugin
 
-from app.schema import TemplateCreateSchema, TemplateSchema, TemplateUpdateSchema
+from app.schema import (
+    EmailSchema,
+    SMSSchema,
+    TemplateCreateSchema,
+    TemplateSchema,
+    TemplateUpdateSchema,
+)
 
 # get swagger.json file path
 swagger_json_path = os.path.dirname(__file__) + "/static/swagger.json"
@@ -35,7 +41,8 @@ spec.components.security_scheme("bearerAuth", bearer_scheme)
 spec.components.schema("TemplateSchema", schema=TemplateSchema)
 spec.components.schema("TemplateCreateSchema", schema=TemplateCreateSchema)
 spec.components.schema("TemplateUpdateSchema", schema=TemplateUpdateSchema)
-
+spec.components.schema("SMS", schema=SMSSchema)
+spec.components.schema("Email", schema=EmailSchema)
 
 # add swagger tags that are used for endpoint annotation
 tags = [

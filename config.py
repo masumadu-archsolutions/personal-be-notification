@@ -50,6 +50,9 @@ class Config:
     SMS_CLIENT_ID = os.getenv("SMS_CLIENT_ID")
     SMS_CLIENT_SECRET = os.getenv("SMS_CLIENT_SECRET")
 
+    # EMAIL
+    EMAIL_CLIENT_API = os.getenv("EMAIL_PROVIDER_API")
+
     @property
     def SQLALCHEMY_DATABASE_URI(self):  # noqa
         return "postgresql+psycopg2://{user}:{pw}@{url}:{port}/{db}".format(

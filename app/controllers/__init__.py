@@ -1,2 +1,3 @@
+from .email_controller import EmailController
 from .sms_controller import SmsController
 from .template_controller import NotificationTemplateController

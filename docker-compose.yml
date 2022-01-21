@@ -1,7 +1,7 @@
 version: "3.8"
 services:
   backend:
-    image: privatedr.quantumgroupgh.com/nova-be-notification:1.0.1
+    image: nova-be-notification:latest
     container_name: "nova-be-notification"
     environment:
       DB_ENGINE: ${DB_ENGINE}
@@ -17,12 +17,12 @@ services:
     ports:
       - 8000:5000
     networks:
-      - notification_service
+      - nova_service
     volumes:
       - .:/app
 
   consumer:
-    image: privatedr.quantumgroupgh.com/nova-be-notification:1.0.1
+    image: nova-be-notification:latest
     container_name: "nova-notification-consumer"
     environment:
       DB_ENGINE: ${DB_ENGINE}
@@ -36,14 +36,13 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_BOOTSTRAP_SERVERS}
     command: python3 ./app/consumer.py
     networks:
-      - notification_service
-      - retailer_service
+      - nova_service
     volumes:
       - .:/app
     restart: always
 
   celery_worker:
-    image: privatedr.quantumgroupgh.com/nova-be-notification:1.0.1
+    image: nova-be-notification:latest
     container_name: "nova-notification-celery-worker"
     environment:
       DB_ENGINE: ${DB_ENGINE}
@@ -56,11 +55,11 @@ services:
       REDIS_SERVER: ${REDIS_SERVER}
       KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_BOOTSTRAP_SERVERS}
     networks:
-      - notification_service
-    command: celery -A app.celery_app:app worker -l INFO
+      - nova_service
+    command: celery -A app.celery_app:celery worker -l INFO
     volumes:
       - .:/app
 
 networks:
-  notification_service:
-    name: notification_network
+  nova_service:
+    name: nova_network

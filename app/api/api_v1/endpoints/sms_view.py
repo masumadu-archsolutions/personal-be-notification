@@ -17,6 +17,31 @@ obj_graph = pinject.new_object_graph(
 sms_controller = obj_graph.provide(SmsController)
 
 
+@sms.route("/send-sms")
+def send_sms():
+    """
+    ---
+    get:
+      description: sends an sms
+      responses:
+        '200':
+          description: returns an sms
+          content:
+            application/json:
+              schema: SMS
+      tags:
+          - SMS
+    """
+    data = {
+        "recipient": "0247049596",
+        "details": {"name": "send_sms_view", "verification_code": "123456"},
+        "meta": {"type": "sms_notification", "subtype": "otp"},
+    }
+
+    sms_controller.send_data(data)
+    return "sent"
+
+
 @sms.route("/")
 def get_all_sms():
     """

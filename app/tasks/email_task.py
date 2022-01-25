@@ -1,3 +1,5 @@
+import secrets
+
 from app.celery_app import celery
 from app.core.exceptions import AppException
 from app.repositories import EmailRepository
@@ -29,17 +31,17 @@ def send_email(data, service_name, repository_name):
     email_repository = service_map(repository_name)
 
     recipients = data.get("recipient")
-    message = data.get("message")
-    message_id = data.get("message_id")
+    email_body = data.get("email_body")
+    email_id = data.get("email_id")
     try:
-        email_service.send(recipients=recipients, text_body="lja", html_body=message)
+        email_service.send(recipients=recipients, html_body=email_body)
         email_repository.update_by_id(
-            message_id,
+            email_id,
             {
-                "reference": 'result.get("reference")',
+                "reference": secrets.token_hex(15),
                 "delivered_to_email_client": True,
                 "email_client": email_service.client,
             },
         )
     except AppException.OperationError:
-        email_repository.update_by_id(message_id, {"email_client": email_service.client})
+        email_repository.update_by_id(email_id, {"email_client": email_service.client})

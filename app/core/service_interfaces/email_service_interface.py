@@ -15,7 +15,7 @@ class EmailServiceInterface(metaclass=abc.ABCMeta):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def send(self, recipients, text_body, html_body):
+    def send(self, subject, sender, recipients, text_body, html_body):
         """
 
         :param subject: subject of the email

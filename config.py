@@ -53,6 +53,15 @@ class Config:
     # EMAIL
     EMAIL_CLIENT_API = os.getenv("EMAIL_PROVIDER_API")
 
+    # TLS MAIL CONFIGURATION
+    MAIL_SERVER = os.getenv("MAIL_SERVER")
+    MAIL_PORT = int(os.getenv("MAIL_PORT", default=25))
+    MAIL_USERNAME = os.getenv("MAIL_USERNAME")
+    MAIL_PASSWORD = os.getenv("MAIL_PASSWORD")
+    MAIL_USE_TLS = os.getenv("MAIL_USE_TLS", default=True)
+    MAIL_USE_SSL = os.getenv("MAIL_USE_SSL", default=False)
+    MAIL_DEFAULT_SENDER = os.getenv("ADMIN_EMAIL_ADDRESS")
+
     @property
     def SQLALCHEMY_DATABASE_URI(self):  # noqa
         return "postgresql+psycopg2://{user}:{pw}@{url}:{port}/{db}".format(

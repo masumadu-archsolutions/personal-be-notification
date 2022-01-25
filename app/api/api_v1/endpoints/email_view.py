@@ -85,8 +85,8 @@ def send_email():
     """
     data = {
         "recipient": "michaelasumadu1@gmail.com",
-        "details": {"name": "Celery", "pin": "123456"},
-        "meta": {"type": "email_notification", "subtype": "pin"},
+        "details": {"name": "send_email_view"},
+        "meta": {"type": "email_notification", "subtype": "general"},
     }
 
     email_controller.send_mail(data)

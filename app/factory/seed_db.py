@@ -3,7 +3,7 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from app.core.factory import Seeder
 from app.enums import get_notification_subtype, get_notification_type
-from app.models import NotificationTemplateModel, SMSModel
+from app.models import EmailModel, NotificationTemplateModel, SMSModel
 
 
 def generate_random_keywords(placeholder, description, is_sensitive):
@@ -46,12 +46,34 @@ class SeedSMSModel(Seeder):
         sms = SMSModel(
             recipient=cls.fake.random_number(digits=10, fix_len=True),
             message_type=cls.fake.random_element(elements=get_notification_type()),
+            message_subtype=cls.fake.random_element(elements=get_notification_subtype()),
+            message_template=cls.fake.word(),
             message=cls.fake.text(),
             reference=cls.fake.random_number(digits=15, fix_len=True),
             sms_client=cls.fake.word(),
             delivered_to_sms_client=cls.fake.boolean(),
         )
         cls.db.session.add(sms)
+        try:
+            cls.db.session.commit()
+        except SQLAlchemyError as e:
+            logger.error(e.args)
+            cls.db.session.rollback()
+
+
+class SeedEmailModel(Seeder):
+    @classmethod
+    def run(cls):
+        email = EmailModel(
+            recipient=cls.fake.word(),
+            message_type=cls.fake.word(),
+            message_subtype=cls.fake.word(),
+            message_template=cls.fake.word(),
+            reference=cls.fake.random_number(digits=15, fix_len=True),
+            email_client=cls.fake.word(),
+            delivered_to_email_client=cls.fake.boolean(),
+        )
+        cls.db.session.add(email)
         try:
             cls.db.session.commit()
         except SQLAlchemyError as e:

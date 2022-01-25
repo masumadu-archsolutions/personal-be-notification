@@ -46,7 +46,7 @@ spec.components.schema("Email", schema=EmailSchema)
 
 # add swagger tags that are used for endpoint annotation
 tags = [
-    {"name": "Template", "description": "For user authentication."},
+    {"name": "Template", "description": "For Template Activities."},
 ]
 
 for tag in tags:

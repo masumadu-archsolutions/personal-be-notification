@@ -24,6 +24,6 @@ def get_notification_subtype():
 
 def get_subtype(notification_type):
     for notification in NotificationEnum:
-        enum_value = notification.value
-        if notification_type and enum_value.get("type") == notification_type:
-            return enum_value.get("subtype")
+        notification_value = notification.value
+        if notification_value.get("type") == notification_type:
+            return notification_value.get("subtype")

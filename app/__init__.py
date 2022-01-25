@@ -21,7 +21,7 @@ from app.core.exceptions.app_exceptions import (  # noqa: E402
     AppExceptionCase,
     app_exception_handler,
 )
-from app.core.extensions import celery, db, ma, migrate  # noqa: E402
+from app.core.extensions import celery, db, ma, mail, migrate  # noqa: E402
 
 # load dotenv in the base root
 APP_ROOT = os.path.join(os.path.dirname(__file__), "..")  # refers to application_top
@@ -93,6 +93,7 @@ def register_extensions(flask_app):
             db.create_all()
     factory.init_app(flask_app, db)
     ma.init_app(flask_app)
+    mail.init_app(flask_app)
 
     @flask_app.errorhandler(HTTPException)
     def handle_http_exception(e):

@@ -23,7 +23,7 @@ class NotificationTemplateModel(db.Model):
     id = db.Column(db.GUID(), primary_key=True, default=uuid.uuid4)
     type = db.Column(db.String(), nullable=False)
     subtype = db.Column(db.String(), nullable=False)
-    template_file = db.Column(db.String(), nullable=False)
+    template_file = db.Column(db.String(), nullable=False, unique=True)
     template_keywords = db.Column(db.String())
     created = db.Column(
         db.DateTime(timezone=True), nullable=False, server_default=func.now()

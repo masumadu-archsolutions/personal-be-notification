@@ -73,11 +73,14 @@ class SmsController:
         if generated_message:
             sanitized_message = generated_message.get("sanitized_message")
             message = generated_message.get("message")
+            message_template = generated_message.get("message_template")
 
             sms_record_data = {
                 "recipient": recipient,
                 "message": sanitized_message,
                 "message_type": meta.get("type"),
+                "message_subtype": meta.get("subtype"),
+                "message_template": message_template,
             }
             sms_record = self.sms_repository.create(sms_record_data)
             sms_data = {
@@ -125,4 +128,8 @@ class SmsController:
             f"{template_directory}/{template_name}", **details
         )
 
-        return {"message": message, "sanitized_message": redacted_message}
+        return {
+            "message": message,
+            "sanitized_message": redacted_message,
+            "message_template": template_name,
+        }

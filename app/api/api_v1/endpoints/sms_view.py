@@ -38,7 +38,7 @@ def send_sms():
         "meta": {"type": "sms_notification", "subtype": "otp"},
     }
 
-    sms_controller.send_data(data)
+    sms_controller.send_message(data)
     return "sent"
 
 

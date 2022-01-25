@@ -1,4 +1,11 @@
-from marshmallow import Schema, ValidationError, fields, validate, validates_schema
+from marshmallow import (
+    Schema,
+    ValidationError,
+    fields,
+    pre_load,
+    validate,
+    validates_schema,
+)
 
 from app.enums import get_notification_subtype, get_notification_type, get_subtype
 
@@ -22,17 +29,17 @@ class TemplateSchema(Schema):
         required=True,
         validate=validate.OneOf(get_notification_subtype()),
     )
-    # message = fields.String(required=True)
-    template_file = fields.String(required=True)
     keywords = fields.Nested(KeywordSchema(many=True))
+    template_file = fields.String(required=True)
     created = fields.DateTime(required=True)
     modified = fields.DateTime(required=True)
 
     @validates_schema
     def validate_subtype(self, field, **kwargs):
-        subtype = field.get("subtype")
-        if subtype and subtype not in get_subtype(field.get("type")):
-            raise ValidationError(f"subtype must be one of {get_subtype(field['type'])}")
+        field_subtype = field.get("subtype")
+        subtype = get_subtype(field.get("type"))
+        if field_subtype and field_subtype not in subtype:
+            raise ValidationError(f"subtype must be one of {subtype}")
 
     class Meta:
         fields = [
@@ -59,7 +66,6 @@ class TemplateCreateSchema(TemplateSchema):
 
 class TemplateUpdateSchema(TemplateSchema):
     type = fields.String(
-        required=True,
         validate=validate.OneOf(get_notification_type()),
     )
     subtype = fields.String(validate=validate.OneOf(get_notification_subtype()))
@@ -73,3 +79,11 @@ class TemplateUpdateSchema(TemplateSchema):
             "template_file",
             "keywords",
         ]
+
+    @pre_load
+    def validate_enum(self, field, **kwargs):
+        field_type = field.get("type")
+        field_subtype = field.get("subtype")
+        if field_type and not field_subtype or field_subtype and not field_type:
+            raise ValidationError("subtype and type required")
+        return field

@@ -25,3 +25,4 @@ class NotificationTemplateController:
     def delete(self, template_id):
         self.repository.delete(template_id)
         return Result({}, 204)
+        # TODO: delete template file when template is deleted

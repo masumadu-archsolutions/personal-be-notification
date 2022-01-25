@@ -71,19 +71,21 @@ class EmailController:
         meta = data.get("meta")
         generated_mail = self.generate_mail(details=details, meta=meta)
         if generated_mail:
-            sanitized_message = generated_mail.get("sanitized_message")
-            message = generated_mail.get("message")
+            # sanitized_mail = generated_mail.get("sanitized_mail")
+            email_body = generated_mail.get("email_message")
+            message_template = generated_mail.get("message_template")
 
             email_record_data = {
                 "recipient": recipient,
-                "message": sanitized_message,
                 "message_type": meta.get("type"),
+                "message_subtype": meta.get("subtype"),
+                "message_template": message_template,
             }
             email_record = self.email_repository.create(email_record_data)
             email_data = {
                 "recipient": recipient,
-                "message": message,
-                "message_id": email_record.id,
+                "email_body": email_body,
+                "email_id": email_record.id,
             }
             send_email.delay(
                 email_data,
@@ -109,7 +111,7 @@ class EmailController:
             )  # noqa
             return None
 
-        message = render_template(f"{template_directory}/{template_name}", **details)
+        email_body = render_template(f"{template_directory}/{template_name}", **details)
 
         # get keywords from message_template
         keywords = message_template.keywords
@@ -123,4 +125,8 @@ class EmailController:
             f"{template_directory}/{template_name}", **details
         )
 
-        return {"message": message, "sanitized_message": redacted_mail}
+        return {
+            "message_template": template_name,
+            "email_message": email_body,
+            "sanitized_mail": redacted_mail,
+        }

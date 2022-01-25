@@ -1,6 +1,7 @@
 import secrets
 
 from requests import RequestException
+from sendgrid import SendGridException
 
 
 class MockResponse:
@@ -25,5 +26,11 @@ class MockSideEffects:
             },
         )
 
+    def send_email_response(self, *args, **kwargs):
+        return MockResponse(status_code=200, json={})
+
     def request_exception(self, *args, **kwargs):
         raise RequestException
+
+    def sendgrid_exception(self, *args, **kwargs):
+        raise SendGridException

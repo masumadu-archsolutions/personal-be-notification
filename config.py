@@ -62,6 +62,9 @@ class Config:
     MAIL_USE_SSL = os.getenv("MAIL_USE_SSL", default=False)
     MAIL_DEFAULT_SENDER = os.getenv("ADMIN_EMAIL_ADDRESS")
 
+    VAPID_PRIVATE_KEY = os.getenv("VAPID_PRIVATE_KEY")
+    VAPID_PUBLIC_KEY = os.getenv("VAPID_PUBLIC_KEY")
+
     @property
     def SQLALCHEMY_DATABASE_URI(self):  # noqa
         return "postgresql+psycopg2://{user}:{pw}@{url}:{port}/{db}".format(

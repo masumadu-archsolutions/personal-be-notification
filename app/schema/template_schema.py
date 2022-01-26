@@ -23,22 +23,19 @@ class KeywordSchema(Schema):
 
 
 class TemplateSchema(Schema):
-    id = fields.UUID(required=True)
-    type = fields.String(required=True, validate=validate.OneOf(get_notification_type()))
-    subtype = fields.String(
-        required=True,
-        validate=validate.OneOf(get_notification_subtype()),
-    )
+    id = fields.UUID()
+    type = fields.String()
+    subtype = fields.String()
     keywords = fields.Nested(KeywordSchema(many=True))
-    template_file = fields.String(required=True)
-    created = fields.DateTime(required=True)
-    modified = fields.DateTime(required=True)
+    template_file = fields.String()
+    created = fields.DateTime()
+    modified = fields.DateTime()
 
     @validates_schema
     def validate_subtype(self, field, **kwargs):
-        field_subtype = field.get("subtype")
+        message_subtype = field.get("subtype")
         subtype = get_subtype(field.get("type"))
-        if field_subtype and field_subtype not in subtype:
+        if message_subtype and message_subtype not in subtype:
             raise ValidationError(f"subtype must be one of {subtype}")
 
     class Meta:
@@ -55,6 +52,17 @@ class TemplateSchema(Schema):
 
 
 class TemplateCreateSchema(TemplateSchema):
+    id = fields.UUID(required=True)
+    type = fields.String(required=True, validate=validate.OneOf(get_notification_type()))
+    subtype = fields.String(
+        required=True,
+        validate=validate.OneOf(get_notification_subtype()),
+    )
+    keywords = fields.Nested(KeywordSchema(many=True))
+    template_file = fields.String(required=True)
+    created = fields.DateTime(required=True)
+    modified = fields.DateTime(required=True)
+
     class Meta:
         fields = [
             "type",
@@ -82,8 +90,8 @@ class TemplateUpdateSchema(TemplateSchema):
 
     @pre_load
     def validate_enum(self, field, **kwargs):
-        field_type = field.get("type")
-        field_subtype = field.get("subtype")
-        if field_type and not field_subtype or field_subtype and not field_type:
+        message_type = field.get("type")
+        message_subtype = field.get("subtype")
+        if message_type and not message_subtype or message_subtype and not message_type:
             raise ValidationError("subtype and type required")
         return field

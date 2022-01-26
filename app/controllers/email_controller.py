@@ -98,34 +98,33 @@ class EmailController:
         if not message_template:
             logger.error("template_error: No template available for this type of email")
             return None
+        template_file = message_template.template_file
+        template_path = f"email/{template_file}"
 
-        template_directory = "email"
+        if self.template_file_exist(template_file):
+            email_body = render_template(template_path, **details)
+
+            # get keywords from message_template
+            keywords = message_template.keywords
+            for keyword in keywords:
+                is_sensitive = keyword.get("is_sensitive")
+                if is_sensitive:
+                    item = keyword.get("placeholder")
+                    details[item] = re.sub(".", "*", str(details.get(item)))
+
+            redacted_mail = render_template(template_path, **details)
+
+            return {
+                "message_template": template_file,
+                "email_message": email_body,
+                "sanitized_mail": redacted_mail,
+            }
+        logger.error(f"template_error: template file {template_file} not found")
+        return None
+
+    def template_file_exist(self, filename):
         parent_directory = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-        mail_templates = os.listdir(f"{parent_directory}/templates/{template_directory}")
-        template_name = message_template.template_file
-
-        if not mail_templates or template_name not in mail_templates:
-            logger.error(
-                f"template_error: template file {template_name} not found"
-            )  # noqa
+        templates = os.listdir(f"{parent_directory}/templates/email")
+        if not filename or filename not in templates:
             return None
-
-        email_body = render_template(f"{template_directory}/{template_name}", **details)
-
-        # get keywords from message_template
-        keywords = message_template.keywords
-        for keyword in keywords:
-            is_sensitive = keyword.get("is_sensitive")
-            if is_sensitive:
-                item = keyword.get("placeholder")
-                details[item] = re.sub(".", "*", str(details.get(item)))
-
-        redacted_mail = render_template(
-            f"{template_directory}/{template_name}", **details
-        )
-
-        return {
-            "message_template": template_name,
-            "email_message": email_body,
-            "sanitized_mail": redacted_mail,
-        }
+        return templates

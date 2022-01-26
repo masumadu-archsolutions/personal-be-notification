@@ -33,7 +33,7 @@ def get_all_email():
           description: call successful
           content:
             application/json:
-              schema: Email
+              schema: EmailSchema
       tags:
           - Email
     """
@@ -59,7 +59,7 @@ def get_email(email_id):
           description: returns an email
           content:
             application/json:
-              schema: Email
+              schema: EmailSchema
       tags:
           - Email
     """
@@ -79,7 +79,7 @@ def send_email():
           description: returns an email
           content:
             application/json:
-              schema: Email
+              schema: EmailSchema
       tags:
           - Email
     """

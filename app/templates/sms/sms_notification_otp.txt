@@ -1,2 +1,2 @@
-[Novagas]Hello {{ name }}, your verification_code is {{ verification_code }}. Please do
-not share this code with anyone. Thank You!!!
+[Novagas]Hello {{ name }}, your verification_code is {{ verification_code }}.
+Please do not share this code with anyone. Thank You!!!

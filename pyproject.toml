@@ -41,6 +41,7 @@ sendgrid = "^6.9.4"
 Flask-Mail = "^0.9.1"
 bs4 = "^0.0.1"
 Flask-Cors = "^3.0.10"
+pywebpush = "^1.14.0"
 
 [tool.poetry.dev-dependencies]
 black = "^21.5b2"

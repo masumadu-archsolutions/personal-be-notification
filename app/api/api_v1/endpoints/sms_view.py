@@ -28,7 +28,7 @@ def send_sms():
           description: returns an sms
           content:
             application/json:
-              schema: SMS
+              schema: SMSSchema
       tags:
           - SMS
     """
@@ -53,7 +53,7 @@ def get_all_sms():
           description: call successful
           content:
             application/json:
-              schema: SMS
+              schema: SMSSchema
       tags:
           - SMS
     """
@@ -79,7 +79,7 @@ def get_sms(sms_id):
           description: returns an sms
           content:
             application/json:
-              schema: SMS
+              schema: SMSSchema
       tags:
           - SMS
     """

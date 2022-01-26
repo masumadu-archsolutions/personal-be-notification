@@ -103,33 +103,33 @@ class SmsController:
             logger.error("template_error: No template available for this type of sms")
             return None
 
-        template_directory = "sms"
+        template_file = message_template.template_file
+        file_path = f"sms/{template_file}"
+
+        if self.template_file_exist(template_file):
+            message = render_template(file_path, **details)
+
+            # get keywords from message_template
+            keywords = message_template.keywords
+            for keyword in keywords:
+                is_sensitive = keyword.get("is_sensitive")
+                if is_sensitive:
+                    item = keyword.get("placeholder")
+                    details[item] = re.sub(".", "*", str(details.get(item)))
+
+            redacted_message = render_template(file_path, **details)
+
+            return {
+                "message": message,
+                "sanitized_message": redacted_message,
+                "message_template": template_file,
+            }
+        logger.error(f"template_error: template file {template_file} not found")
+        return None
+
+    def template_file_exist(self, filename):
         parent_directory = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-        sms_templates = os.listdir(f"{parent_directory}/templates/{template_directory}")
-        template_name = message_template.template_file
-
-        if not sms_templates or template_name not in sms_templates:
-            logger.error(
-                f"template_error: template file {template_name} not found"
-            )  # noqa
+        templates = os.listdir(f"{parent_directory}/templates/sms")
+        if not filename or filename not in templates:
             return None
-
-        message = render_template(f"{template_directory}/{template_name}", **details)
-
-        # get keywords from message_template
-        keywords = message_template.keywords
-        for keyword in keywords:
-            is_sensitive = keyword.get("is_sensitive")
-            if is_sensitive:
-                item = keyword.get("placeholder")
-                details[item] = re.sub(".", "*", str(details.get(item)))
-
-        redacted_message = render_template(
-            f"{template_directory}/{template_name}", **details
-        )
-
-        return {
-            "message": message,
-            "sanitized_message": redacted_message,
-            "message_template": template_name,
-        }
+        return templates

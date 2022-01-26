@@ -12,6 +12,8 @@ class SMSModel(db.Model):
     id: str
     recipient: str
     message_type: str
+    message_subtype: str
+    message_template: str
     message: str
     reference: str
     sms_client: str

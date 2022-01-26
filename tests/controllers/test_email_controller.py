@@ -33,8 +33,8 @@ class TestEmailController(BaseTestCase):
         self.assertEqual(NotificationTemplateModel.query.count(), 2)
         self.assertEqual(EmailModel.query.count(), 1)
         with mock.patch("app.tasks.email_task.send_email.delay") as mock_delay:
-            self.email_controller.send_mail(self.email_test_data.new_email)
+            self.email_controller.send_mail(self.email_test_data.email_request_data)
         self.assertTrue(mock_delay.called)
-        template_error = self.email_test_data.new_email
+        template_error = self.email_test_data.email_request_data
         template_error["meta"]["subtype"] = "pin_change"
         self.assertIsNone(self.email_controller.send_mail(template_error))

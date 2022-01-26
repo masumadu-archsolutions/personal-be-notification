@@ -1,10 +1,7 @@
 from bs4 import BeautifulSoup
-
-# from flask_mail import Message
 from loguru import logger
 from sendgrid import Mail, SendGridAPIClient, SendGridException
 
-# from app import mail
 from app.core.exceptions import AppException
 from app.core.service_interfaces import EmailServiceInterface
 from config import Config
@@ -29,25 +26,13 @@ class EmailService(EmailServiceInterface):
                 "html_content": html_body,
             }
             msg = Mail(**data)
-            # self.send_mail()
             sg.send(msg)
             logger.info("message sent successfully to email provider")
-            # return {"reference": data.get("messageId")}
         except SendGridException as exc:
             logger.error(
                 f"error sending message to email provider with error message {exc.args}"
             )
             raise AppException.OperationError(context="Error sending email")
-
-    # def send_mail(self):
-    #     msg = Message(
-    #         subject="Testing flask mail Configuration",
-    #         sender="michaelasumadu1@gmail.com",
-    #         recipients=["michaelasumadu10@gmail.com"],
-    #         body="this is the body",
-    #         html="<h1>the body </h1>",
-    #     )
-    #     mail.send(msg)
 
     def mail_subject(self, html_body):
         soup = BeautifulSoup(html_body, features="html.parser")

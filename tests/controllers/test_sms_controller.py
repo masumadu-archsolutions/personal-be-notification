@@ -33,8 +33,8 @@ class TestSmsController(BaseTestCase):
         self.assertEqual(NotificationTemplateModel.query.count(), 2)
         self.assertEqual(SMSModel.query.count(), 1)
         with mock.patch("app.tasks.sms_task.send_sms.delay") as mock_delay:
-            self.sms_controller.send_message(self.sms_test_data.new_sms)
+            self.sms_controller.send_message(self.sms_test_data.sms_request_data)
         self.assertTrue(mock_delay.called)
-        template_error = self.sms_test_data.new_sms
+        template_error = self.sms_test_data.sms_request_data
         template_error["meta"]["subtype"] = "pin_change"
         self.assertIsNone(self.sms_controller.send_message(template_error))

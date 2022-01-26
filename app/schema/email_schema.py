@@ -8,7 +8,6 @@ class EmailSchema(Schema):
     recipient = fields.Str()
     message_type = fields.Str()
     message = fields.Str()
-    # reference = fields.Str()
     email_client = fields.Str()
     delivered_to_email_client = fields.Boolean()
     created = fields.DateTime()

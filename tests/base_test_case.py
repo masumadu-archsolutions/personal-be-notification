@@ -51,7 +51,10 @@ class BaseTestCase(TestCase):
         self.side_effect = MockSideEffects()
 
     def setup_patches(self):
-        pass
+        """
+        This is where all mocked object are setup for the test
+        :return: mocked objects
+        """
 
     def setup_template_files(self):
         parent_directory = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))

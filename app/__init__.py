@@ -4,6 +4,7 @@ import sys
 
 from flask import Flask, has_request_context, jsonify, request
 from flask.logging import default_handler
+from flask_cors import CORS
 from flask_mongoengine import MongoEngine
 from flask_swagger_ui import get_swaggerui_blueprint
 from sqlalchemy.exc import DBAPIError
@@ -62,6 +63,9 @@ def create_app(config="config.DevelopmentConfig"):
     basedir = os.path.abspath(os.path.dirname(__file__))
     path = os.path.join(basedir, "../instance")
     app = Flask(__name__, instance_relative_config=False, instance_path=path)
+    # Set CORS. Origins is set to all. This should be changed in production to allow
+    # only relevant urls
+    CORS(app, resources={r"/api/*": {"origins": "*"}}, headers="Content-Type")
     app.logger.addHandler(default_handler)
     with app.app_context():
         environment = os.getenv("FLASK_ENV")

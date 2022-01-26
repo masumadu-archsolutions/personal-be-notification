@@ -3,6 +3,9 @@ import pytest
 from app.models import EmailModel, NotificationTemplateModel, SMSModel
 from tests import BaseTestCase
 
+MIGRATING_MODELS = "migrating models"
+SEEDING_COMPLETE = "Seeding complete"
+
 
 class TestSeedDB(BaseTestCase):
     @pytest.mark.model
@@ -12,8 +15,8 @@ class TestSeedDB(BaseTestCase):
         command = self.app.cli.commands
         result = runner.invoke(command["db_seed"])
         self.assertFalse(result.exception)
-        self.assertIn("migrating models", result.output)
-        self.assertIn("Seeding complete", result.output)
+        self.assertIn(MIGRATING_MODELS, result.output)
+        self.assertIn(SEEDING_COMPLETE, result.output)
 
     @pytest.mark.model
     def test_seed_sms_model(self):
@@ -22,15 +25,15 @@ class TestSeedDB(BaseTestCase):
         command = self.app.cli.commands
         result = runner.invoke(command["db_seed"], args=["-m", "smsmodel"])
         self.assertFalse(result.exception)
-        self.assertIn("migrating models", result.output)
-        self.assertIn("Seeding complete", result.output)
+        self.assertIn(MIGRATING_MODELS, result.output)
+        self.assertIn(SEEDING_COMPLETE, result.output)
         self.assertEqual(SMSModel.query.count(), 2)
         cmd_result = runner.invoke(
             command["db_seed"], args=["-c", "3", "-m", "smsmodel"]
         )
         self.assertFalse(cmd_result.exception)
-        self.assertIn("migrating models", cmd_result.output)
-        self.assertIn("Seeding complete", cmd_result.output)
+        self.assertIn(MIGRATING_MODELS, cmd_result.output)
+        self.assertIn(SEEDING_COMPLETE, cmd_result.output)
         self.assertEqual(SMSModel.query.count(), 5)
 
     @pytest.mark.model
@@ -42,8 +45,8 @@ class TestSeedDB(BaseTestCase):
             command["db_seed"], args=["-m", "notificationtemplatemodel"]
         )
         self.assertFalse(result.exception)
-        self.assertIn("migrating models", result.output)
-        self.assertIn("Seeding complete", result.output)
+        self.assertIn(MIGRATING_MODELS, result.output)
+        self.assertIn(SEEDING_COMPLETE, result.output)
 
     @pytest.mark.model
     def test_seed_email_model(self):
@@ -52,13 +55,13 @@ class TestSeedDB(BaseTestCase):
         command = self.app.cli.commands
         result = runner.invoke(command["db_seed"], args=["-m", "emailmodel"])
         self.assertFalse(result.exception)
-        self.assertIn("migrating models", result.output)
-        self.assertIn("Seeding complete", result.output)
+        self.assertIn(MIGRATING_MODELS, result.output)
+        self.assertIn(SEEDING_COMPLETE, result.output)
         self.assertEqual(EmailModel.query.count(), 2)
         cmd_result = runner.invoke(
             command["db_seed"], args=["-c", "3", "-m", "emailmodel"]
         )
         self.assertFalse(cmd_result.exception)
-        self.assertIn("migrating models", cmd_result.output)
-        self.assertIn("Seeding complete", cmd_result.output)
+        self.assertIn(MIGRATING_MODELS, cmd_result.output)
+        self.assertIn(SEEDING_COMPLETE, cmd_result.output)
         self.assertEqual(EmailModel.query.count(), 5)

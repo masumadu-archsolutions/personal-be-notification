@@ -148,3 +148,7 @@ cython_debug/
 
 # Ignore development docker-compose file
 docker-compose-dev.yml
+
+# Ignore sonarqube files and directories
+.scannerwork
+sonar-project.properties

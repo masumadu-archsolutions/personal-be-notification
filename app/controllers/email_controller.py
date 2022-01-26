@@ -71,7 +71,6 @@ class EmailController:
         meta = data.get("meta")
         generated_mail = self.generate_mail(details=details, meta=meta)
         if generated_mail:
-            # sanitized_mail = generated_mail.get("sanitized_mail")
             email_body = generated_mail.get("email_message")
             message_template = generated_mail.get("message_template")
 

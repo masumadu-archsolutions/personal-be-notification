@@ -76,7 +76,7 @@ class SMSTestData(TemplateFiles):
         }
 
     @property
-    def new_sms(self):
+    def sms_request_data(self):
         return {
             "recipient": "0241112223",
             "details": {"verification_code": "123456"},
@@ -103,7 +103,7 @@ class EmailTestData(TemplateFiles):
         }
 
     @property
-    def new_email(self):
+    def email_request_data(self):
         return {
             "recipient": "test@example.com",
             "details": {"name": "send_email_view"},

@@ -114,10 +114,13 @@ class SmsController:
             for keyword in keywords:
                 is_sensitive = keyword.get("is_sensitive")
                 if is_sensitive:
+                    print("over here")
                     item = keyword.get("placeholder")
+                    print(item)
                     details[item] = re.sub(".", "*", str(details.get(item)))
 
             redacted_message = render_template(file_path, **details)
+            print(redacted_message)
 
             return {
                 "message": message,

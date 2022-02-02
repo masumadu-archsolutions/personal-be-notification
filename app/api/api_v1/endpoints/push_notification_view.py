@@ -1,7 +1,7 @@
 import pinject
 from flask import Blueprint, request
 
-from app.controllers import PushSubscriptionController
+from app.controllers import PushNotificationController
 from app.core.service_result import handle_result
 from app.repositories import PushMessageRepository, PushSubscriptionRepository
 from app.schema import (
@@ -15,22 +15,22 @@ from app.schema import (
 from app.services import PushService
 from app.utils import validator
 
-push_subscription = Blueprint("push", __name__)
+push = Blueprint("push", __name__)
 
 obj_graph = pinject.new_object_graph(
     modules=None,
     classes=[
-        PushSubscriptionController,
+        PushNotificationController,
         PushSubscriptionRepository,
         PushService,
         PushMessageRepository,
     ],
 )
 
-push_controller = obj_graph.provide(PushSubscriptionController)
+push_controller = obj_graph.provide(PushNotificationController)
 
 
-@push_subscription.route("/message", methods=["POST"])
+@push.route("/message", methods=["POST"])
 @validator(schema=CreateMessageSchema)
 def create_message():
     """
@@ -56,7 +56,7 @@ def create_message():
     return handle_result(result, schema=PushMessageSchema)
 
 
-@push_subscription.route("/message", methods=["GET"])
+@push.route("/message", methods=["GET"])
 def get_all_messages():
     """
     ---
@@ -75,7 +75,7 @@ def get_all_messages():
     return handle_result(result, schema=PushMessageSchema, many=True)
 
 
-@push_subscription.route("/message/<message_id>", methods=["GET"])
+@push.route("/message/<string:message_id>", methods=["GET"])
 def get_message(message_id):
     """
     ---
@@ -101,7 +101,7 @@ def get_message(message_id):
     return handle_result(result, schema=PushMessageSchema)
 
 
-@push_subscription.route("/message/<message_id>", methods=["PATCH"])
+@push.route("/message/<string:message_id>", methods=["PATCH"])
 @validator(schema=UpdateMessageSchema)
 def update_message(message_id):
     """
@@ -134,7 +134,7 @@ def update_message(message_id):
     return handle_result(result, schema=PushMessageSchema)
 
 
-@push_subscription.route("/message/<message_id>", methods=["DELETE"])
+@push.route("/message/<string:message_id>", methods=["DELETE"])
 def delete_message(message_id):
     """
     ---
@@ -157,7 +157,7 @@ def delete_message(message_id):
     return handle_result(result)
 
 
-@push_subscription.route("/subscription", methods=["POST"])
+@push.route("/subscription", methods=["POST"])
 @validator(schema=CreateSubscriptionSchema)
 def subscribe():
     """
@@ -183,7 +183,7 @@ def subscribe():
     return handle_result(result, schema=SubscriptionSchema)
 
 
-@push_subscription.route("/subscription", methods=["GET"])
+@push.route("/subscription", methods=["GET"])
 def get_all_subscriptions():
     """
     ---
@@ -202,7 +202,7 @@ def get_all_subscriptions():
     return handle_result(result, schema=SubscriptionSchema, many=True)
 
 
-@push_subscription.route("/subscription/send-message", methods=["POST"])
+@push.route("/subscription/send-message", methods=["POST"])
 @validator(schema=SendMessageSchema)
 def send_message():
     """
@@ -244,7 +244,7 @@ def send_message():
     return handle_result(result)
 
 
-@push_subscription.route("/subscription/server-id", methods=["GET"])
+@push.route("/subscription/server-id", methods=["GET"])
 def send_server_id():
     """
     ---

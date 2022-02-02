@@ -4,7 +4,7 @@ from app.models import NotificationTemplateModel
 from tests import BaseTestCase
 
 
-class TestModels(BaseTestCase):
+class TestNotificationTemplateModels(BaseTestCase):
     @pytest.mark.model
     def test_notification_template_model(self):
         self.assertEqual(NotificationTemplateModel.query.count(), 2)

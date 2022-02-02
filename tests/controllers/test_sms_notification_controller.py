@@ -7,7 +7,7 @@ from app.models import NotificationTemplateModel, SMSModel
 from tests import BaseTestCase
 
 
-class TestSmsController(BaseTestCase):
+class TestSmsNotificationController(BaseTestCase):
     @pytest.mark.controller
     def test_index(self):
         self.assertEqual(SMSModel.query.count(), 1)

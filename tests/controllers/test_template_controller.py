@@ -8,7 +8,7 @@ from app.models import NotificationTemplateModel
 from tests import BaseTestCase
 
 
-class TestTemplateController(BaseTestCase):
+class TestNotificationTemplateController(BaseTestCase):
     @pytest.mark.controller
     def test_index(self):
         self.assertEqual(NotificationTemplateModel.query.count(), 2)

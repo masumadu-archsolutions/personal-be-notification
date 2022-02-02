@@ -1,4 +1,4 @@
 from .email_controller import EmailController
-from .push_notification_controller import PushSubscriptionController
+from .push_notification_controller import PushNotificationController
 from .sms_controller import SmsController
 from .template_controller import NotificationTemplateController

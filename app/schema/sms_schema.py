@@ -21,6 +21,7 @@ class SMSSchema(Schema):
             "message_type",
             "message_subtype",
             "message_template",
+            "message",
             "reference",
             "sms_client",
             "delivered_to_sms_client",

@@ -4,7 +4,7 @@ import enum
 class NotificationEnum(enum.Enum):
     sms = {"type": "sms_notification", "subtype": ["otp", "pin_change"]}
     email = {"type": "email_notification", "subtype": ["general"]}
-    push = {"type": "push_notification", "subtype": ["general"]}
+    push = {"type": "push_notification", "subtype": ["general", "transaction_alert"]}
 
 
 def get_notification_type():

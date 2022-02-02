@@ -4,7 +4,7 @@ from app.models import SMSModel
 from tests import BaseTestCase
 
 
-class TestModels(BaseTestCase):
+class TestSMSNotificationModels(BaseTestCase):
     @pytest.mark.model
     def test_sms_model(self):
         self.assertEqual(SMSModel.query.count(), 1)

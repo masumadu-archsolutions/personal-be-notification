@@ -7,16 +7,32 @@ from app import APP_ROOT, create_app, db, init_celery
 from app.controllers import (
     EmailController,
     NotificationTemplateController,
+    PushNotificationController,
     SmsController,
 )
-from app.models import EmailModel, NotificationTemplateModel, SMSModel
+from app.models import (
+    EmailModel,
+    NotificationTemplateModel,
+    PushMessageModel,
+    PushSubscriptionModel,
+    SMSModel,
+)
 from app.repositories import (
     EmailRepository,
     NotificationTemplateRepository,
+    PushMessageRepository,
+    PushSubscriptionRepository,
     SmsRepository,
 )
-from app.services import EmailService, SmsService
-from tests.utils import EmailTestData, MockSideEffects, SMSTestData, TemplateTestData
+from app.services import EmailService, PushService, SmsService
+from tests.utils import (
+    EmailTestData,
+    MockSideEffects,
+    PushMessageTestData,
+    PushSubscriptionTestData,
+    SMSTestData,
+    TemplateTestData,
+)
 
 
 class BaseTestCase(TestCase):
@@ -37,17 +53,27 @@ class BaseTestCase(TestCase):
         )
         self.sms_repository = SmsRepository()
         self.email_repository = EmailRepository()
+        self.push_message_repository = PushMessageRepository()
+        self.push_subscription_repository = PushSubscriptionRepository()
         self.sms_service = SmsService()
         self.email_service = EmailService()
+        self.push_service = PushService()
         self.sms_controller = SmsController(
             self.sms_repository, self.template_repository, self.sms_service
         )
         self.email_controller = EmailController(
             self.email_repository, self.template_repository, self.email_service
         )
+        self.push_controller = PushNotificationController(
+            self.push_subscription_repository,
+            self.push_message_repository,
+            self.push_service,
+        )
         self.template_test_data = TemplateTestData()
         self.sms_test_data = SMSTestData()
         self.email_test_data = EmailTestData()
+        self.push_message_test_data = PushMessageTestData()
+        self.push_subscription_test_data = PushSubscriptionTestData()
         self.side_effect = MockSideEffects()
 
     def setup_patches(self):
@@ -88,10 +114,18 @@ class BaseTestCase(TestCase):
         )
         self.sms_model = SMSModel(**self.sms_test_data.existing_sms)
         self.email_model = EmailModel(**self.email_test_data.existing_email)
+        self.push_message_model = PushMessageModel(
+            **self.push_message_test_data.existing_message
+        )
+        self.push_subscription_model = PushSubscriptionModel(
+            **self.push_subscription_test_data.existing_subscription
+        )
         db.session.add(self.sms_template_test_model)
         db.session.add(self.email_template_test_model)
         db.session.add(self.sms_model)
         db.session.add(self.email_model)
+        db.session.add(self.push_message_model)
+        db.session.add(self.push_subscription_model)
         db.session.commit()
 
     def tearDown(self):

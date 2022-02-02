@@ -47,4 +47,6 @@ def send_push(data, service_name, repository_name):
             },
         )
     except AppException.OperationError:
-        push_repository.update_by_id(endpoint_id, {"message_id": message_id})
+        push_repository.update_by_id(
+            endpoint_id, {"message_id": message_id, "delivered_to_device": False}
+        )

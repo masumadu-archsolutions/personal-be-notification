@@ -9,7 +9,7 @@ from app.services import PushService
 from config import Config
 
 
-class PushSubscriptionController:
+class PushNotificationController:
     def __init__(
         self,
         push_subscription_repository: PushSubscriptionRepository,
@@ -21,7 +21,12 @@ class PushSubscriptionController:
         self.push_service = push_service
 
     def create_message(self, data):
-        result = self.push_message_repository.create(data)
+        try:
+            result = self.push_message_repository.create(data)
+        except AppException.OperationError as e:
+            raise AppException.OperationError(
+                context={"controller.create_message": e.context}
+            )
         return Result(result, 201)
 
     def show_all_messages(self):
@@ -29,7 +34,15 @@ class PushSubscriptionController:
         return Result(result, 200)
 
     def show_message(self, obj_id):
-        result = self.push_message_repository.find_by_id(obj_id)
+        assert obj_id, "missing id of message to find"
+        try:
+            result = self.push_message_repository.find_by_id(obj_id)
+        except AppException.NotFoundException:
+            raise AppException.NotFoundException(
+                context={
+                    "controller.show_message": f"message with id {obj_id} does not exists"
+                }
+            )
         return Result(result, 200)
 
     def update_message(self, message_id, message_data):
@@ -38,7 +51,7 @@ class PushSubscriptionController:
         except AppException.NotFoundException:
             raise AppException.NotFoundException(
                 context={
-                    "controller.update": f"push message with id {message_id} does not exists"
+                    "controller.update_message": f"push message with id {message_id} does not exists"  # noqa
                 }
             )
         return Result(result, 200)
@@ -49,7 +62,7 @@ class PushSubscriptionController:
         except AppException.NotFoundException:
             raise AppException.NotFoundException(
                 context={
-                    "controller.delete": f"push message with id {message_id} does not exists"
+                    "controller.delete_message": f"push message with id {message_id} does not exists"  # noqa
                 }
             )
         return Result({}, 204)
@@ -60,14 +73,22 @@ class PushSubscriptionController:
         if not device_info:
             result = self.push_subscription_repository.create(data)
             return Result(result, 201)
-        return self.show(device_info.id)
+        return self.show_subscription(device_info.id)
 
     def show_all_subscriptions(self):
         result = self.push_subscription_repository.index()
         return Result(result, 200)
 
-    def show(self, push_id):
-        result = self.push_subscription_repository.find_by_id(push_id)
+    def show_subscription(self, push_id):
+        assert push_id, "missing id of device to find"
+        try:
+            result = self.push_subscription_repository.find_by_id(push_id)
+        except AppException.NotFoundException:
+            raise AppException.NotFoundException(
+                context={
+                    "controller.show_subscription": f"device with id {push_id} does not exists"
+                }
+            )
         return Result(result, 200)
 
     def server_id(self):

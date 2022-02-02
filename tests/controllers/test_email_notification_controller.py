@@ -7,7 +7,7 @@ from app.models import EmailModel, NotificationTemplateModel
 from tests import BaseTestCase
 
 
-class TestEmailController(BaseTestCase):
+class TestEmailNotificationController(BaseTestCase):
     @pytest.mark.controller
     def test_index(self):
         self.assertEqual(EmailModel.query.count(), 1)

@@ -4,7 +4,7 @@ from app.models import EmailModel
 from tests import BaseTestCase
 
 
-class TestModels(BaseTestCase):
+class TestEmailNotificationModels(BaseTestCase):
     @pytest.mark.model
     def test_sms_model(self):
         self.assertEqual(EmailModel.query.count(), 1)

@@ -1,5 +1,6 @@
 import secrets
 
+from pywebpush import WebPushException
 from requests import RequestException
 from sendgrid import SendGridException
 
@@ -29,8 +30,19 @@ class MockSideEffects:
     def send_email_response(self, *args, **kwargs):
         return MockResponse(status_code=200, json={})
 
+    def send_push_response(self, *args, **kwargs):
+        return MockResponse(
+            status_code=200,
+            json={
+                "status": "success",
+            },
+        )
+
     def request_exception(self, *args, **kwargs):
         raise RequestException
 
     def sendgrid_exception(self, *args, **kwargs):
         raise SendGridException
+
+    def pywebpush_exception(self, *args, **kwargs):
+        raise WebPushException(message="error")

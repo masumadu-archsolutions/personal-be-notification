@@ -1,3 +1,6 @@
+import uuid
+
+
 class TemplateFiles:
     @property
     def template_files(self):
@@ -115,4 +118,79 @@ class EmailTestData(TemplateFiles):
         return {
             "recipient": "test_example@gmail.com",
             "email_body": "<h1>email body </h1>",
+        }
+
+
+class PushMessageTestData:
+    @property
+    def existing_message(self):
+        return {
+            "message_type": "push_notification",
+            "message_subtype": "transaction_alert",
+            "message_title": "message title",
+            "message_body": "push message body",
+        }
+
+    @property
+    def new_message(self):
+        return {
+            "message_type": "push_notification",
+            "message_subtype": "general",
+            "message_title": "message title",
+            "message_body": "push message body",
+        }
+
+    @property
+    def update_message(self):
+        return {"message_body": "updated message body"}
+
+
+class PushSubscriptionTestData(PushMessageTestData):
+    @property
+    def existing_subscription(self):
+        return {
+            "endpoint": "https://fcm.googleapis.com/fcm/send/ecLd9nk2p2g:APA91bE5XkgCu0vkZU7mLXti3WjU-LhDOAY3-G7ZzI0QOVnw-bPJo7ZlzWWzQzyFoH2AiXiFkcemjL3S0UjsVr3yJVNW3XbeIfhfWlKuOhx04LjObGUsKejWQxxFnpWg5TBHdxCiBRXR",  # noqa
+            "auth_keys": '{"p256dh":"BJfAdP6roL7dH9a6yR2diiK6FKLIzG23fSbi9PwEsZjgErrOQ92ecv0GkFaTMq6AVGptS2D24pF4MHysZfi2STg","auth":"zQGpi3vX2zWSt9QjbSmO_A"}',  # noqa
+        }
+
+    @property
+    def new_subscription(self):
+        return {
+            "endpoint": "https://fcm.googleapis.com/fcm/send/frN610kGF1E:APA91bHKXS6PaEx_cVYoU52c9jol0-JJd6vlh47UjfLXCL0P2Cds349DEe6hVsE5nz6Ny2XG_zRa28jCWvhafhcovHEJRFWY_nj8BInPfKePzufv8mbYNeh-jVtzOHBorhxZ0FF-8aiR",  # noqa
+            "auth_keys": '{"p256dh":"BMGlN0vMuU_oQjoOPxEBWS_jJ1-hdlHN98AE3cawyAlBYBHkynEAsnKpiYgi4Ee3g07W7cVFlXAkYdt0V6p_Zlg","auth":"-YioKWEX3vxxcCGFH7Qr8Q"}',  # noqa
+        }
+
+    @property
+    def send_push_request(self):
+        return {
+            "endpoint": self.existing_subscription.get("endpoint"),
+            "metadata": {
+                "message_type": self.existing_message.get("message_type"),
+                "message_subtype": self.existing_message.get("message_subtype"),
+            },
+        }
+
+    @property
+    def send_push_request_exc(self):
+        return {
+            "endpoint": self.new_subscription.get("endpoint"),
+            "metadata": {
+                "message_type": self.new_message.get("message_type"),
+                "message_subtype": self.existing_message.get("message_subtype"),
+            },
+        }
+
+    @property
+    def send_push(self):
+        return {
+            "subscription_info": {
+                "endpoint": self.existing_subscription.get("endpoint"),
+                "keys": self.existing_subscription.get("auth_keys"),
+            },
+            "message": {
+                "message_id": str(uuid.uuid4()),
+                "message_title": "push title",
+                "message_body": "push message",
+            },
+            "endpoint_id": str(uuid.uuid4()),
         }

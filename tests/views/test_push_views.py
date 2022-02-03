@@ -83,7 +83,14 @@ class TestEmailView(BaseTestCase):
             self.assertIsInstance(response_data, list)
 
     @pytest.mark.views
-    # @mock.patch("app.services.keycloak_service.AuthService.update_user")
+    def test_get_subscription_messages(self):
+        with self.client:
+            response = self.client.get(url_for("push.get_subscription_messages"))
+            response_data = response.json
+            self.assert200(response)
+            self.assertIsInstance(response_data, list)
+
+    @pytest.mark.views
     @mock.patch("app.tasks.push_task.send_push.delay")
     def test_send_message(self, mock_delay):
         with self.client:

@@ -3,7 +3,13 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from app.core.factory import Seeder
 from app.enums import get_notification_subtype, get_notification_type
-from app.models import EmailModel, NotificationTemplateModel, SMSModel
+from app.models import (
+    EmailModel,
+    NotificationTemplateModel,
+    PushMessageModel,
+    PushSubscriptionModel,
+    SMSModel,
+)
 
 
 def generate_random_keywords(placeholder, description, is_sensitive):
@@ -79,3 +85,36 @@ class SeedEmailModel(Seeder):
         except SQLAlchemyError as e:
             logger.error(e.args)
             cls.db.session.rollback()
+
+
+class SeedPushMessageModel(Seeder):
+    @classmethod
+    def run(cls):
+        push_message = PushMessageModel(
+            message_type=cls.fake.random_element(get_notification_type()),
+            message_subtype=cls.fake.random_element(get_notification_subtype()),
+            message_title=cls.fake.word(),
+            message_body=cls.fake.sentence(),
+        )
+        cls.db.session.add(push_message)
+        try:
+            cls.db.session.commit()
+        except SQLAlchemyError as e:
+            logger.error(e.args)
+            cls.db.session.rollback()
+
+    class SeedPushSubscriptionModel(Seeder):
+        @classmethod
+        def run(cls):
+            push_subscription = PushSubscriptionModel(
+                endpoint=cls.fake.url(),
+                auth_keys=f"{cls.fake.pydict()}",
+                message_id=cls.fake.uuid4(),
+                delivered_to_device=cls.fake.boolean(),
+            )
+            cls.db.session.add(push_subscription)
+            try:
+                cls.db.session.commit()
+            except SQLAlchemyError as e:
+                logger.error(e.args)
+                cls.db.session.rollback()

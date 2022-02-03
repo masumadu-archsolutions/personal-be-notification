@@ -8,6 +8,7 @@ from app.schema import (
     CreateMessageSchema,
     CreateSubscriptionSchema,
     PushMessageSchema,
+    PushSubscriptionSchema,
     SendMessageSchema,
     SubscriptionSchema,
     UpdateMessageSchema,
@@ -200,6 +201,25 @@ def get_all_subscriptions():
     """
     result = push_controller.show_all_subscriptions()
     return handle_result(result, schema=SubscriptionSchema, many=True)
+
+
+@push.route("/subscription/messages", methods=["GET"])
+def get_subscription_messages():
+    """
+    ---
+    get:
+      description: returns all push messages sent to device
+      responses:
+        '200':
+          description: call successful
+          content:
+            application/json:
+              schema: PushSubscriptionSchema
+      tags:
+          - Push
+    """
+    result = push_controller.show_all_subscriptions()
+    return handle_result(result, schema=PushSubscriptionSchema, many=True)
 
 
 @push.route("/subscription/send-message", methods=["POST"])

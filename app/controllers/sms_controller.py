@@ -104,9 +104,8 @@ class SmsController:
             return None
 
         template_file = message_template.template_file
-        file_path = f"sms/{template_file}"
-
-        if self.template_file_exist(template_file):
+        file_path = self.template_file_exist(template_file)
+        if file_path:
             message = render_template(file_path, **details)
 
             # get keywords from message_template
@@ -114,25 +113,23 @@ class SmsController:
             for keyword in keywords:
                 is_sensitive = keyword.get("is_sensitive")
                 if is_sensitive:
-                    print("over here")
                     item = keyword.get("placeholder")
-                    print(item)
                     details[item] = re.sub(".", "*", str(details.get(item)))
 
             redacted_message = render_template(file_path, **details)
-            print(redacted_message)
 
             return {
                 "message": message,
                 "sanitized_message": redacted_message,
                 "message_template": template_file,
             }
-        logger.error(f"template_error: template file {template_file} not found")
         return None
 
     def template_file_exist(self, filename):
         parent_directory = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-        templates = os.listdir(f"{parent_directory}/templates/sms")
-        if not filename or filename not in templates:
+        template_file_directory = os.listdir(f"{parent_directory}/templates/sms")
+        if not filename or filename not in template_file_directory:
+            logger.error(f"template_error: template file {filename} not found")
             return None
-        return templates
+        file_path = f"sms/{filename}"
+        return file_path

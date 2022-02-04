@@ -99,10 +99,10 @@ class EmailController:
             logger.error("template_error: No template available for this type of email")
             return None
         template_file = message_template.template_file
-        template_path = f"email/{template_file}"
+        file_path = self.template_file_exist(template_file)
 
-        if self.template_file_exist(template_file):
-            email_body = render_template(template_path, **details)
+        if file_path:
+            email_body = render_template(file_path, **details)
 
             # get keywords from message_template
             keywords = message_template.keywords
@@ -112,19 +112,20 @@ class EmailController:
                     item = keyword.get("placeholder")
                     details[item] = re.sub(".", "*", str(details.get(item)))
 
-            redacted_mail = render_template(template_path, **details)
+            redacted_mail = render_template(file_path, **details)
 
             return {
                 "message_template": template_file,
                 "email_message": email_body,
                 "sanitized_mail": redacted_mail,
             }
-        logger.error(f"template_error: template file {template_file} not found")
         return None
 
     def template_file_exist(self, filename):
         parent_directory = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-        templates = os.listdir(f"{parent_directory}/templates/email")
-        if not filename or filename not in templates:
+        templates_file_directory = os.listdir(f"{parent_directory}/templates/email")
+        if not filename or filename not in templates_file_directory:
+            logger.error(f"template_error: template file {filename} not found")
             return None
-        return templates
+        file_path = f"email/{filename}"
+        return file_path

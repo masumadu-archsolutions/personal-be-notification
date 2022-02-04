@@ -149,6 +149,7 @@ def init_celery(app=None):
 
         def __call__(self, *args, **kwargs):
             with app.app_context():
+                db.engine.dispose()
                 return self.run(*args, **kwargs)
 
     celery.Task = ContextTask

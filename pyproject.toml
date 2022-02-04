@@ -7,7 +7,7 @@ authors = ["Joseph Maclean Arhin <josephmacleanarhin@outlook.com>"]
 [tool.poetry.dependencies]
 python = "^3.8"
 pip = "21.1.2"
-Flask = "^1.1.2"
+Flask = "^2.0.1"
 kafka-python = "^2.0.2"
 Flask-SQLAlchemy = "^2.5.1"
 psycopg2-binary = "^2.8.6"
@@ -42,6 +42,7 @@ Flask-Mail = "^0.9.1"
 bs4 = "^0.0.1"
 Flask-Cors = "^3.0.10"
 pywebpush = "^1.14.0"
+marshmallow = "3.12.2"
 
 [tool.poetry.dev-dependencies]
 black = "^21.5b2"
